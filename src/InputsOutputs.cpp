@@ -33,7 +33,7 @@ void InputsOutputs::printPin()
 {
 }
 
-void InputsOutputs::generateInputsOutputs(std::vector<string>* strVector, std::vector<InputsOutputs>* inputs, std::vector<InputsOutputs>* outputs)
+void InputsOutputs::generateInputsOutputs(std::vector<string>* strVector, std::vector<InputsOutputs>* inputs, std::vector<InputsOutputs>* outputs, std::vector<InputsOutputs>* variables)
 {
 	std::vector<string> tok;
 	std::vector<string> sNames;
@@ -41,6 +41,7 @@ void InputsOutputs::generateInputsOutputs(std::vector<string>* strVector, std::v
 	std::string sDataString;
 	std::string bitSubStr;
 	string bitWidth;
+	std::vector<string>::iterator pinLinesEndHere;
 
 	//std::vector<InputsOutputs> inputs;
 
@@ -57,8 +58,8 @@ void InputsOutputs::generateInputsOutputs(std::vector<string>* strVector, std::v
 
 		if (tok.size() == 0) continue;
 		//sType = tok.at(0);//the first token should be input, output, wire etc
-
-		if (tok.at(0) == "input" || tok.at(0) == "output") {
+		string dbg = tok.at(0);
+		if (tok.at(0) == "input" || tok.at(0) == "output" || tok.at(0) == "variable") {
 			//newCon = new InputsOutputs("input");
 			
 
@@ -106,15 +107,27 @@ void InputsOutputs::generateInputsOutputs(std::vector<string>* strVector, std::v
 					if (outputs->size() == 0) outputs->push_back(*newInputsOutputs);//If the vector is empty, just put this in there.
 					else outputs->push_back(*newInputsOutputs);// pins.insert(pins.begin(), newPin);//They should load in order on their own
 				}
-				
+				else if (tok.at(0) == "variable") {
+					if (variables->size() == 0) variables->push_back(*newInputsOutputs);//If the vector is empty, just put this in there.
+					else variables->push_back(*newInputsOutputs);// pins.insert(pins.begin(), newPin);//They should load in order on their own
+				}
 			}
 			sNames.clear();//After making all of the pins with this type and bitwidth, empty the name vector and move to the next type
+			pinLinesEndHere = it;
 		}
 
+
 	}
+	strVector->erase(strVector->begin(), pinLinesEndHere + 1);
 
-
-			
+	//for (std::vector<string>::iterator it = strVector->begin(); it != pinLinesEndHere + 1; ++it) {
+	//	strVector->erase()
+	//}
+	//std::vector<string>::iterator it2 = strVector->begin();
+	//do {
+	//	it2 = strVector->erase(it2);
+	//	
+	//} while (it2 <= pinLinesEndHere);
 
 
 }

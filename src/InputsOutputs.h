@@ -30,7 +30,7 @@ public:
 	void printPin();
 	//std::vector<InputsOutputs> generateInputsOutputss(std::string inputString);
 	//static bool CheckType(std::string);
-	static  void generateInputsOutputs(std::vector<string>* strVector, std::vector<InputsOutputs>* inputs, std::vector<InputsOutputs>* outputs);
+	static  void generateInputsOutputs(std::vector<string>* strVector, std::vector<InputsOutputs>* inputs, std::vector<InputsOutputs>* outputs, std::vector<InputsOutputs>* variables);
 
 private:
 
