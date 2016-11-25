@@ -1,14 +1,15 @@
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <cstdlib>
-#include <fstream>
+//#include <iostream>
+//#include <string>
+//#include <sstream>
+//#include <cstdlib>
+//#include <fstream>
 #include "Parser.h"
-#include "InputsOutputs.h"
+#include "IOV.h"
 
 using namespace std;
 
 int main (int argc, char* argv[]){
+
 	string path = "E:\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\testfiles\\if tests\\";
 	string inFileString = "test_if1.c";
 	char* inCStr = new char[(path + inFileString).length() - 1];
@@ -23,9 +24,9 @@ int main (int argc, char* argv[]){
 	//std::cout << argv[0] << std::endl;
 
 	std::vector<string> rawFileStrings;
-	std::vector<InputsOutputs> inputs;
-	std::vector<InputsOutputs> outputs;
-	std::vector<InputsOutputs> variables;
+	std::vector<IOV> inputs;
+	std::vector<IOV> outputs;
+	std::vector<IOV> variables;
 	//Parser::parseFile(argv[1], rawFileStrings);
 	Parser::parseFile(inCStr, &rawFileStrings);
 
@@ -35,20 +36,20 @@ int main (int argc, char* argv[]){
 	std::cout << "......................................" << std::endl;
 
 
-	InputsOutputs::generateInputsOutputs(&rawFileStrings, &inputs, &outputs, &variables);
+	IOV::generateIOV(&rawFileStrings, &inputs, &outputs, &variables);
 	//Note: This function removes the declaration lines, so only procedural statements remain in rawFileStrings after this. 
 
 	//string dName = Parser::getModuleName(argv[1]);
 	std::cout << "Inputs:" << endl;
-	for (std::vector<InputsOutputs>::iterator it = inputs.begin(); it != inputs.end(); ++it) {
+	for (std::vector<IOV>::iterator it = inputs.begin(); it != inputs.end(); ++it) {
 		std::cout << it->getName() << " : " << it->getDataType() << " : " << it->getBitWidth() << std::endl;
 	}
 	std::cout << "Outputs:" << endl;
-	for (std::vector<InputsOutputs>::iterator it = outputs.begin(); it != outputs.end(); ++it) {
+	for (std::vector<IOV>::iterator it = outputs.begin(); it != outputs.end(); ++it) {
 		std::cout << it->getName() << " : " << it->getDataType() << " : " << it->getBitWidth() << std::endl;
 	}
 	std::cout << "Variables:" << endl;
-	for (std::vector<InputsOutputs>::iterator it = variables.begin(); it != variables.end(); ++it) {
+	for (std::vector<IOV>::iterator it = variables.begin(); it != variables.end(); ++it) {
 		std::cout << it->getName() << " : " << it->getDataType() << " : " << it->getBitWidth() << std::endl;
 	}
 	std::cout << "......................................" << std::endl;

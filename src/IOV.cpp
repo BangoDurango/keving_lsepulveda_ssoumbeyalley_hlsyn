@@ -1,9 +1,7 @@
-#include "InputsOutputs.h"
-#include <string>
+#include "IOV.h"
 
 
-
-InputsOutputs::InputsOutputs(std::string sName, std::string sDataString, std::string strBitWidth)
+IOV::IOV(std::string sName, std::string sDataString, std::string strBitWidth)
 {
 	name = sName;
 	dataType = sDataString;
@@ -12,28 +10,28 @@ InputsOutputs::InputsOutputs(std::string sName, std::string sDataString, std::st
 	return;
 }
 
-std::string InputsOutputs::getName(void)
+std::string IOV::getName(void)
 {
 	return name;
 }
 
-std::string InputsOutputs::getBitWidth()
+std::string IOV::getBitWidth()
 {
 	return sBitWidth;
 }
 
 
-std::string InputsOutputs::getDataType(void)
+std::string IOV::getDataType(void)
 {
 	return dataType;
 }
 
 
-void InputsOutputs::printPin()
+void IOV::printPin()
 {
 }
 
-void InputsOutputs::generateInputsOutputs(std::vector<string>* strVector, std::vector<InputsOutputs>* inputs, std::vector<InputsOutputs>* outputs, std::vector<InputsOutputs>* variables)
+void IOV::generateIOV(std::vector<string>* strVector, std::vector<IOV>* inputs, std::vector<IOV>* outputs, std::vector<IOV>* variables)
 {
 	std::vector<string> tok;
 	std::vector<string> sNames;
@@ -43,7 +41,7 @@ void InputsOutputs::generateInputsOutputs(std::vector<string>* strVector, std::v
 	string bitWidth;
 	std::vector<string>::iterator pinLinesEndHere;
 
-	//std::vector<InputsOutputs> inputs;
+	//std::vector<IOV> inputs;
 
 	if (strVector->size() == 0) {
 		std::cout << "Error parsing file (V_Module.cpp)" << std::endl;
@@ -60,7 +58,7 @@ void InputsOutputs::generateInputsOutputs(std::vector<string>* strVector, std::v
 		//sType = tok.at(0);//the first token should be input, output, wire etc
 		string dbg = tok.at(0);
 		if (tok.at(0) == "input" || tok.at(0) == "output" || tok.at(0) == "variable") {
-			//newCon = new InputsOutputs("input");
+			//newCon = new IOV("input");
 			
 
 			sDataString = tok.at(1); //The second item is always the bitwidth string
@@ -97,19 +95,19 @@ void InputsOutputs::generateInputsOutputs(std::vector<string>* strVector, std::v
 
 			for (std::vector<string>::iterator it = sNames.begin(); it != sNames.end(); ++it) {
 				//loop through the vector of pin names, and make a new V_Pin object for it
-				InputsOutputs *newInputsOutputs = new InputsOutputs(*it, sType, bitWidth);
+				IOV *newIOV = new IOV(*it, sType, bitWidth);
 
 				if (tok.at(0) == "input") {
-					if (inputs->size() == 0) inputs->push_back(*newInputsOutputs);//If the vector is empty, just put this in there.
-					else inputs->push_back(*newInputsOutputs);// pins.insert(pins.begin(), newPin);//They should load in order on their own
+					if (inputs->size() == 0) inputs->push_back(*newIOV);//If the vector is empty, just put this in there.
+					else inputs->push_back(*newIOV);// pins.insert(pins.begin(), newPin);//They should load in order on their own
 				}
 				else if (tok.at(0) == "output") {
-					if (outputs->size() == 0) outputs->push_back(*newInputsOutputs);//If the vector is empty, just put this in there.
-					else outputs->push_back(*newInputsOutputs);// pins.insert(pins.begin(), newPin);//They should load in order on their own
+					if (outputs->size() == 0) outputs->push_back(*newIOV);//If the vector is empty, just put this in there.
+					else outputs->push_back(*newIOV);// pins.insert(pins.begin(), newPin);//They should load in order on their own
 				}
 				else if (tok.at(0) == "variable") {
-					if (variables->size() == 0) variables->push_back(*newInputsOutputs);//If the vector is empty, just put this in there.
-					else variables->push_back(*newInputsOutputs);// pins.insert(pins.begin(), newPin);//They should load in order on their own
+					if (variables->size() == 0) variables->push_back(*newIOV);//If the vector is empty, just put this in there.
+					else variables->push_back(*newIOV);// pins.insert(pins.begin(), newPin);//They should load in order on their own
 				}
 			}
 			sNames.clear();//After making all of the pins with this type and bitwidth, empty the name vector and move to the next type
