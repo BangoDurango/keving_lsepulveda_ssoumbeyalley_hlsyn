@@ -18,15 +18,11 @@ public:
 	int getID();
 	void setType(string s);
 	std::string getType();
-	//void setE1E2(Edge* e1, Edge* e2);
-	//void setE0(Edge *out);
-	//Edge* getE0();
 	void printVertex();
 
 	void addIncoming(Edge* e);
 	void addOutgoing(Edge* e);
-	void setIfTrue(Edge* e);
-	void setElse(Edge* e);
+
 
 private:
 	std::string sType;
@@ -35,8 +31,7 @@ private:
 	std::vector<Edge*> incoming;
 	std::vector<Edge*> outgoing;
 	bool isCond;
-	Edge* ifTrue;
-	Edge* Else;
+
 	std::string str;
 
 

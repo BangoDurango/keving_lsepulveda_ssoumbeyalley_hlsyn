@@ -10,7 +10,11 @@ Graph::Graph()
 	MultCnt = 0;
 	LogicCnt = 0;
 	IfCnt = 0;
-	cFlag = false;
+	//cFlag = false;
+	currF = new Func;
+	currF->addVertex(vINOP);
+	gCDFG.addFunction(currF);
+	_last = FUNCTION;
 }
 
 void Graph::loadFileStrings(std::vector<string> strVec)
@@ -51,7 +55,9 @@ IOV* Graph::getIOVbyName(std::string s)
 void Graph::parseOperations()
 {
 	//conditionalFlag = false;
-	//Conditional* newC;
+	Conditional* newC;
+	Func* newF;
+	Func* tempF;
 
 	if (this->FileStrings.size() == 0) {
 		std::cout << "No File Strings Loaded to Graph" << std::endl;
@@ -59,14 +65,55 @@ void Graph::parseOperations()
 	}
 	for (std::vector<string>::iterator it = FileStrings.begin(); it != FileStrings.end(); ++it) {
 		
-		if (std::size_t found = it->find(CONDITIONAL) != std::string::npos) {
+		if (std::size_t found = it->find(IF) != std::string::npos) {
+			newC = new Conditional(*it);
 			
+			if (_last == FUNCTION) {
+				currF->setNext(newC);
+			}
+			else if (_last == CONDITIONAL) {
+				currC->setNextIfTrue(newC);
+			}
+			else {
+				std::cout << "Something went wrong (Parsing conditionals)" << std::endl;
+			}
+			CondVec.push_back(newC);//pushing conditional to the end of this vector because we need to know the order they occured in
+			currC = newC;
+			_last = CONDITIONAL;
+		}
+		else if (std::size_t found = it->find(ELSE) != std::string::npos) {
+		
+			tempF = currF->updatePrev(currC);
 		}
 		else if (std::size_t found = it->find("}") != std::string::npos) {
+			newF = new Func();
+			currF->setNext(newF);
+			newF->setPrev(currF);
+			currF = newF;
+			if (tempF != NULL) {
+				tempF->setNext(newF);
+				tempF = NULL;
+			}
+			else {
+				CondVec.back()->setNextIfFalse(currF);
+				CondVec.pop_back();
+			}
+			
+			
+			_last = FUNCTION;
 
 		}
-		parseOperation(*it);
+		else {
+			if (_last == CONDITIONAL) {
+				currF = new Func();
+				currF->setPrev(currC);
+				currC->setNextIfTrue(currF);
+				_last = FUNCTION;
+			}
+			parseOperation(*it);
+		}
 	}
+	currF->addVertex(vNOP);
 }
 
 std::vector<Edge*> Graph::getEdgesByID(string s)
@@ -125,6 +172,7 @@ void Graph::parseOperation(string s) {
 		//	cFlag = false;
 		//}
 		Vertices.push_back(newV);
+		currF->addVertex(newV);
 	}
 }
 void Graph::parseInput(string s, Vertex* newV) {
@@ -140,6 +188,7 @@ void Graph::parseInput(string s, Vertex* newV) {
 		vINOP->addOutgoing(newEdge);
 		newV->addIncoming(newEdge);
 		this->Edges.push_back(newEdge);
+		this->currF->addEdge(newEdge);
 	}
 	else if (getIOVbyName(s)->getType() == VARIABLE) {
 
@@ -149,6 +198,7 @@ void Graph::parseInput(string s, Vertex* newV) {
 			newEdge->setOutput(newV);
 			newEdge->setInput(vINOP);
 			this->Edges.push_back(newEdge);
+			this->currF->addEdge(newEdge);
 		}
 		else {
 			for (std::vector<Edge*>::iterator it = eVec.begin(); it != eVec.end(); ++it) {
@@ -162,6 +212,7 @@ void Graph::parseInput(string s, Vertex* newV) {
 					eTMP->setOutput(newV);
 					(*it)->getInput()->addOutgoing(eTMP);
 					this->Edges.push_back(eTMP);
+					this->currF->addEdge(eTMP);
 				}
 
 			}
@@ -183,41 +234,31 @@ void Graph::parseOutput(string s, Vertex* newV) {
 		vNOP->addIncoming(newEdge);
 		newV->addOutgoing(newEdge);
 		this->Edges.push_back(newEdge);
+		this->currF->addEdge(newEdge);
 	}
 	else if (getIOVbyName(s)->getType() == VARIABLE) {
 		newEdge = new Edge(VARIABLE, s);
 		newEdge->setInput(newV);
 		newV->addOutgoing(newEdge);
 		this->Edges.push_back(newEdge);
+		this->currF->addEdge(newEdge);
 	}
 	else {
 
 	}
 }
-void Graph::parseConditional(string s) {
-	//std::vector<string> tok;
-	//Edge* newE;
-	////Vertex* newV;
+void Graph::parseIF(string s, Conditional *c) {
+	std::vector<string> tok;
+	Edge* newE;
+	//Vertex* newV;
 
+	tok = Parser::splitByWhitespace(s);
+	if (tok.size() == 5) {
+		std::cout << tok.at(0) << '\t' << tok.at(1) << '\t' << tok.at(2) << '\t' << tok.at(3) << '\t' << tok.at(4) << std::endl;
+		
+		
+	}
 
-	//tok = Parser::splitByWhitespace(s);
-	//if (tok.size() == 5) {
-	//	std::cout << tok.at(0) << '\t' << tok.at(1) << '\t' << tok.at(2) << '\t' << tok.at(3) << '\t' << tok.at(4) << std::endl;
-	//	
-	//	for (std::vector<Edge*>::iterator it = Edges.end(); it != Edges.begin(); --it) {
-	//		if ((*it)->getID() == tok.at(2)) {
-	//			newE = new Edge(CONDITIONAL, tok.at(2));
-	//			//newE->setInput((*it)->getInput())
-	//			(*it)->getInput()->addOutgoing(newE);
-	//			
-	//			IfCnt++;
-	//			
-	//			conditionals.push_back(newE);
-
-	//			Edges.push_back(newE);
-	//		}
-	//	}
-	//}
 
 }
 void Graph::printGraph() {

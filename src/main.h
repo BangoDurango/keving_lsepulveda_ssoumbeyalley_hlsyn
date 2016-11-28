@@ -1,4 +1,5 @@
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
 #define INPUT "input"
 #define OUTPUT "output"
 #define VARIABLE "variable"
@@ -10,17 +11,19 @@
 #define MINUS "-"
 #define MULT "*"
 #define LOGIC "logic"
-#define LT "\<"
-#define GT "\>"
+#define LT "<"
+#define GT ">"
 #define ET "++"
-#define SL "\<<"
-#define SR "\>>"
+#define SL "<<"
+#define SR ">>"
 #define MUX "?"
 #define INOP "INOP"
 #define NOP "NOP"
-#define CONDITIONAL "if ("
+#define IF "if ("
+#define ELSE "else {"
 #define SIGNED true
 #define UNSIGNED false
+
 
 #include <iostream>
 #include <string>
@@ -35,3 +38,5 @@
 
 
 using namespace std;
+
+enum Block { CONDITIONAL, FUNCTION };

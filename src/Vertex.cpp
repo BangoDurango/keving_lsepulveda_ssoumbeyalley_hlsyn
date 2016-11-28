@@ -118,13 +118,3 @@ void Vertex::addOutgoing(Edge * e)
 	e->setInput(this);
 	outgoing.push_back(e);
 }
-
-void Vertex::setIfTrue(Edge * e)
-{
-	ifTrue = e;
-}
-
-void Vertex::setElse(Edge * e)
-{
-	Else e;
-}
