@@ -20,12 +20,14 @@ class IOV {
 
 public:
 
-	//IOV();
+	IOV();
 	IOV(std::string sName, std::string sDataString, std::string sBitWidth);
 	//IOV(std::string s);
 	std::string getName(void);
 	std::string getBitWidth();
 	std::string getDataType(void);
+	void setType(string s);
+	std::string getType();
 	//unsigned int getBitWidth(void);
 	void printPin();
 	//std::vector<IOV> generateIOVs(std::string inputString);
@@ -37,7 +39,7 @@ private:
 	//unsigned int bitWidth;
 	std::string sBitWidth;
 	std::string name;
-	std::string inputType;
+	std::string type;
 	std::string dataType;
 
 };

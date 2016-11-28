@@ -1,5 +1,9 @@
 #include "IOV.h"
+#include "Parser.h"
 
+IOV::IOV()
+{
+}
 
 IOV::IOV(std::string sName, std::string sDataString, std::string strBitWidth)
 {
@@ -24,6 +28,16 @@ std::string IOV::getBitWidth()
 std::string IOV::getDataType(void)
 {
 	return dataType;
+}
+
+void IOV::setType(string s)
+{
+	this->type = s;
+}
+
+std::string IOV::getType()
+{
+	return type;
 }
 
 
@@ -97,15 +111,18 @@ void IOV::generateIOV(std::vector<string>* strVector, std::vector<IOV>* inputs, 
 				//loop through the vector of pin names, and make a new V_Pin object for it
 				IOV *newIOV = new IOV(*it, sType, bitWidth);
 
-				if (tok.at(0) == "input") {
+				if (tok.at(0) == INPUT) {
+					newIOV->setType(INPUT);
 					if (inputs->size() == 0) inputs->push_back(*newIOV);//If the vector is empty, just put this in there.
 					else inputs->push_back(*newIOV);// pins.insert(pins.begin(), newPin);//They should load in order on their own
 				}
-				else if (tok.at(0) == "output") {
+				else if (tok.at(0) == OUTPUT) {
+					newIOV->setType(OUTPUT);
 					if (outputs->size() == 0) outputs->push_back(*newIOV);//If the vector is empty, just put this in there.
 					else outputs->push_back(*newIOV);// pins.insert(pins.begin(), newPin);//They should load in order on their own
 				}
 				else if (tok.at(0) == "variable") {
+					newIOV->setType("variable");
 					if (variables->size() == 0) variables->push_back(*newIOV);//If the vector is empty, just put this in there.
 					else variables->push_back(*newIOV);// pins.insert(pins.begin(), newPin);//They should load in order on their own
 				}

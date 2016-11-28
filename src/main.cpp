@@ -5,12 +5,14 @@
 //#include <fstream>
 #include "Parser.h"
 #include "IOV.h"
+#include "Graph.h"
+#include "Parser.h"
 
 using namespace std;
 
 int main (int argc, char* argv[]){
 
-	string path = "E:\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\testfiles\\if tests\\";
+	string path = "E:\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\testfiles\\if_tests\\";
 	string inFileString = "test_if1.c";
 	char* inCStr = new char[(path + inFileString).length() - 1];
 	strcpy(inCStr, (path + inFileString).c_str());
@@ -24,6 +26,8 @@ int main (int argc, char* argv[]){
 	//std::cout << argv[0] << std::endl;
 
 	std::vector<string> rawFileStrings;
+	Graph *g1 = new Graph;
+
 	std::vector<IOV> inputs;
 	std::vector<IOV> outputs;
 	std::vector<IOV> variables;
@@ -56,5 +60,13 @@ int main (int argc, char* argv[]){
 	for (std::vector<string>::iterator it = rawFileStrings.begin(); it != rawFileStrings.end(); ++it) {
 		std::cout << *it << std::endl;
 	}
+	std::cout << "......................................" << std::endl<<std::endl;
+	////////////////////////////////////////////////////////////
+	g1->loadFileStrings(rawFileStrings);
+	g1->loadIOV(inputs, outputs, variables);
+
+	std::cout << "......................................" << std::endl << std::endl;
+	g1->parseOperations();
+	//g1->printGraph();
 	return 0;
 }
