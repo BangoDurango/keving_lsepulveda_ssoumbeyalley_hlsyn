@@ -6,6 +6,8 @@
 #include "Edge.h"
 #include "Vertex.h"
 #include "Parser.h"
+#include "Func.h"
+#include "CDFG.h"
 
 
 class Graph {

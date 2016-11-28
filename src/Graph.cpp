@@ -60,7 +60,7 @@ void Graph::parseOperations()
 	for (std::vector<string>::iterator it = FileStrings.begin(); it != FileStrings.end(); ++it) {
 		
 		if (std::size_t found = it->find(CONDITIONAL) != std::string::npos) {
-			
+			 
 		}
 		else if (std::size_t found = it->find("}") != std::string::npos) {
 
