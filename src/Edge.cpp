@@ -3,7 +3,7 @@
 
 Edge::Edge(std::string strType, std::string strID)
 {
-	if (strType == NOP || strType == INOP || strType == VARIABLE || strType == CONDITIONAL) {
+	if (strType == NOP || strType == INOP || strType == VARIABLE || strType == IF || strType == ELSE) {
 		sType = strType;
 		ID = strID;
 
