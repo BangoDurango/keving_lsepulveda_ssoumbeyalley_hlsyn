@@ -38,7 +38,12 @@ public:
 	std::vector<Vertex*> getVertices();
 	void DFS(CDFGraph* g, Vertex* v);
 	void ALAP(CDFGraph* g, Vertex* v, int time);
+	void ALAP(CDFGraph * g, int n);
 	void ALAP(int n);
+
+	void LIST_R(int n);
+
+	void LIST_R(CDFGraph * g, Vertex * v);
 
 private:
 	std::vector<IOV> inputs;
@@ -51,10 +56,10 @@ private:
 	std::vector<Edge*> Edges;
 	std::vector<string> FileStrings;
 
-	int AddSubCnt;
-	int MultCnt;
-	int LogicCnt;
-	int IfCnt;
+	//int AddSubCnt;
+	//int MultCnt;
+	//int LogicCnt;
+	//int IfCnt;
 
 	ControlGraph gControlGraph;
 	Block* currBlk;
@@ -63,6 +68,10 @@ private:
 	std::vector<Conditional*> CondVec;
 	BlockType _last;
 
+	Resource ADDER_SUBTRACTOR;
+	Resource MULTIPLIER;
+	Resource LOGICAL;
+	Resource IF_STATEMENT;
 	int latency;
 };
 

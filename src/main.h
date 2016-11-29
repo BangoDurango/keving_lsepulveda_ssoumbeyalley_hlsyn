@@ -6,11 +6,11 @@
 #define REGISTER "register"
 #define REG "reg"
 #define INVALID "invalid"
-#define ADDSUB "addsub"
+//#define ADDSUB "addsub"
 #define PLUS "+"
 #define MINUS "-"
-#define MULT "*"
-#define LOGIC "logic"
+//#define MULT "*"
+//#define LOGIC "logic"
 #define LT "<"
 #define GT ">"
 #define ET "++"
@@ -40,3 +40,11 @@
 using namespace std;
 
 enum BlockType { CONDITIONAL, FUNCTION };
+//enum Resource {ADDER_SUBTRACTOR = 1, MULTIPLIER = 2, LOGICAL = 1 };
+
+struct Resource {
+	std::string name;
+	std::vector<std::string> ops;
+	int cnt;
+	int delay;
+};//ADDER_SUBTRACTOR, MULTIPLIER, LOGICAL;

@@ -2,14 +2,40 @@
 
 CDFGraph::CDFGraph()
 {
+	ADDER_SUBTRACTOR.cnt = 0;
+	ADDER_SUBTRACTOR.delay = 1;
+	ADDER_SUBTRACTOR.name = "Add/Sub";
+	ADDER_SUBTRACTOR.ops.push_back("+");
+	ADDER_SUBTRACTOR.ops.push_back("-");
+
+	MULTIPLIER.cnt = 0;
+	MULTIPLIER.delay = 2;
+	MULTIPLIER.name = "Mult";
+	MULTIPLIER.ops.push_back("*");
+
+	LOGICAL.name = "Logical";
+	LOGICAL.cnt = 0;
+	LOGICAL.delay = 1;
+	LOGICAL.ops.push_back(GT);
+	LOGICAL.ops.push_back(LT);
+	LOGICAL.ops.push_back(ET);
+	LOGICAL.ops.push_back(SL);
+	LOGICAL.ops.push_back(SR);
+
+	IF_STATEMENT.name = "If/Else";
+	IF_STATEMENT.ops.push_back("if ( ");
+	IF_STATEMENT.ops.push_back("else ( ");
+	IF_STATEMENT.cnt = 0;
+	IF_STATEMENT.delay = 1;
+
 	vONOP = new Vertex(0, ONOP);
 	vINOP = new Vertex(0, INOP);
 	vONOP->setString("OUTPUTS");
 	vINOP->setString("INPUTS");
-	AddSubCnt = 0;
-	MultCnt = 0;
-	LogicCnt = 0;
-	IfCnt = 0;
+	//AddSubCnt = 0;
+	//MultCnt = 0;
+	//LogicCnt = 0;
+	//IfCnt = 0;
 	//cFlag = false;
 	currBlk = new Block;
 	currBlk->addVertex(vINOP);
@@ -239,8 +265,9 @@ Vertex* CDFGraph::parseConditional(string s) {
 	int nID;
 	std::vector<string> tok;
 	tok = Parser::splitByWhitespace(s);
-	IfCnt++;
-	nID = IfCnt;
+	//IfCnt++;
+	IF_STATEMENT.cnt++;
+	nID = IF_STATEMENT.cnt;
 	newV = new Vertex(nID);
 	newV->setType(IF);
 
@@ -264,20 +291,26 @@ void CDFGraph::parseOperation(string s) {
 		if (tp != INVALID) {
 			int nID;
 			if (tp == PLUS || tp == MINUS) {
-				this->AddSubCnt++;
-				nID = AddSubCnt;
+				/*this->AddSubCnt++;
+				nID = AddSubCnt;*/
+				ADDER_SUBTRACTOR.cnt++;
+				nID = ADDER_SUBTRACTOR.cnt;
 				newV = new Vertex(nID);
 				newV->setType(tp);
 			}
 			else if (tp == MULT) {
-				this->MultCnt++;
-				nID = MultCnt;
+				/*this->MultCnt++;
+				nID = MultCnt;*/
+				MULTIPLIER.cnt++;
+				nID = MULTIPLIER.cnt;
 				newV = new Vertex(nID);
 				newV->setType(MULT);
 			}
 			else if (tp == LT || tp == GT || tp == ET || tp == SL || tp == SR) {
-				this->LogicCnt++;
-				nID = LogicCnt;
+				//this->LogicCnt++;
+				//nID = LogicCnt;
+				LOGICAL.cnt++;
+				nID = LOGICAL.cnt;
 				newV = new Vertex(nID);
 				newV->setType(tp);
 			}
@@ -431,7 +464,9 @@ void CDFGraph::ALAP(CDFGraph * g, Vertex * v, int time)
 	}
 
 }
-
+void CDFGraph::ALAP(CDFGraph * g, int n) {
+	g->ALAP(n);
+}
 void CDFGraph::ALAP(int n)
 {
 	//Vertex::setLatency(n);
@@ -440,4 +475,18 @@ void CDFGraph::ALAP(int n)
 		(*it)->setALAPTime(Vertex::latency);
 	}
 	ALAP(this, vONOP, n); 
+}
+void CDFGraph::LIST_R(CDFGraph * g, Vertex * v) {
+	//g->LIST_R()
+}
+
+void CDFGraph::LIST_R(int n) {
+	
+
+
+
+	CDFGraph::ALAP(this, n);
+	//LIST_R(this, )
+	int t = 1;
+
 }
