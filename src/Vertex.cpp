@@ -1,18 +1,25 @@
 #include "Vertex.h"
+int Vertex::latency;
+
 Vertex::Vertex() {
-	isCond = false;
+	visited = false;
+	strNode = "a";
+	ALAPtime = latency;
+	//ALAPtime = CDFGraph::latency;
 }
 Vertex::Vertex(int n)
 {
-	//Vertex();
-	isCond = false;
+	strNode = "b";
+	ALAPtime = Vertex::latency;
+	visited = false;
 	ID = n;
 }
 
 Vertex::Vertex(int n, std::string strType)
 {
-	//Vertex(n);
-	isCond = false;
+	strNode = "c";
+	ALAPtime = Vertex::latency;
+	visited = false;
 	ID = n;
 	sType = strType;
 }
@@ -51,9 +58,14 @@ string Vertex::checkValidOp(std::string s)
 	return INVALID;
 }
 
-void Vertex::setString(string s)
+void Vertex::setString(std::string s)
 {
-	this->str = s;
+	this->strNode = s;
+}
+
+std::string Vertex::getString()
+{
+	return strNode;
 }
 
 void Vertex::setID(int n)
@@ -94,17 +106,23 @@ std::string Vertex::getType()
 
 void Vertex::printVertex()
 {
-	//	std::string sE0, sE1, sE2;
-	//
-	//	sE0 = E0->getID();
-	//	sE1 = E1->getID();
-	//	sE2 = E2->getID();
-	//
-	//	//std::cout << "Vertex:\t" << this->sType << std::endl;
-	//	if (sType != CONDITIONAL) {
-	//		std::cout << sE0 << " = " << sE1 << sType << sE2 << std::endl << std::endl;
-	//	}
-	//}
+		std::string sE0, sE1, sE2, sType;
+	
+		for (std::vector<Edge*>::iterator it = incoming.begin(); it != incoming.end(); ++it) {
+			if((*it)->sType != IF){
+
+			}
+		}
+}
+
+std::vector<Edge*> Vertex::getOutgoing()
+{
+	return outgoing;
+}
+
+std::vector<Edge*> Vertex::getIncoming()
+{
+	return incoming;
 }
 
 void Vertex::addIncoming(Edge * e)
@@ -116,5 +134,46 @@ void Vertex::addIncoming(Edge * e)
 void Vertex::addOutgoing(Edge * e)
 {	
 	e->setInput(this);
+
 	outgoing.push_back(e);
+
+}
+void Vertex::fixOutGoing() {
+	if (outgoing.front()->getOutput() == NULL) {
+		outgoing.erase(outgoing.begin());
+	}
+}
+//void Vertex::setVNumber(int n)
+//{
+//	vNumber = n;
+//}
+//
+//int Vertex::getVNumber()
+//{
+//	return vNumber;
+//}
+
+void Vertex::visit()
+{
+	this->visited = true;
+}
+
+bool Vertex::checkVisited()
+{
+	return visited;
+}
+
+//void Vertex::setLatency(int n)
+//{
+//	latency = n;
+//}
+
+int Vertex::getALAPTime()
+{
+	return ALAPtime;
+}
+
+void Vertex::setALAPTime(int n)
+{
+	ALAPtime = n;
 }

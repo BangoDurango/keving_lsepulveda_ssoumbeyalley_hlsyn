@@ -12,15 +12,18 @@ void Parser::parseFile(char* inFileStr, std::vector<string>* destVector) {
 	//	std::cout << "File Opened!" << std::endl;
 	}
 	else {
-		std::cout << "Unable to open input file." << std::endl;
+		int n;
+		std::cout << "Unable to open input file." << std::endl;// << "Enter a number to exit FIXME" << std::endl;
+		//std::cin >> n;
 		exit(1);
 		//return std::vector<std::string>();
 	}
-
+	std::string str;
 	while (std::getline(inFile, line)) {
 
-		if (line != "") {
-			destVector->push_back(line);
+		if (line.find_first_not_of(' ') != std::string::npos) {
+			str = trim(line);
+			destVector->push_back(str);
 		}
 
 
@@ -30,7 +33,15 @@ void Parser::parseFile(char* inFileStr, std::vector<string>* destVector) {
 	inFile.close();
 
 }
-
+std::string Parser::trim(string& str)
+{
+	std::string sTMP;
+	sTMP = str;
+	sTMP.erase(std::remove(sTMP.begin(), sTMP.end(), '\t'), sTMP.end());
+	size_t first = sTMP.find_first_not_of(' ');
+	size_t last = sTMP.find_last_not_of(' ');
+	return sTMP.substr(first, (last - first + 1));
+}
 vector<std::string> Parser::splitByWhitespace(std::string str) {
 
 	string buf; // Have a buffer string

@@ -5,17 +5,18 @@
 //#include <fstream>
 #include "Parser.h"
 #include "IOV.h"
-#include "Graph.h"
+#include "CDFGraph.h"
 #include "Parser.h"
 
-using namespace std;
+
 
 int main (int argc, char* argv[]){
 
 	string path = "E:\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\testfiles\\if_tests\\";
-	string inFileString = "test_if1.c";
+	string inFileString = "test_if4.c";
 	char* inCStr = new char[(path + inFileString).length() - 1];
 	strcpy(inCStr, (path + inFileString).c_str());
+	int lat = 10;
 
 	if (argc != 4) {
 		std::cout << "Usage: hlsyn cFile latency verilogFile" << std::endl;
@@ -26,7 +27,7 @@ int main (int argc, char* argv[]){
 	//std::cout << argv[0] << std::endl;
 
 	std::vector<string> rawFileStrings;
-	Graph *g1 = new Graph;
+	CDFGraph *g1 = new CDFGraph;
 
 	std::vector<IOV> inputs;
 	std::vector<IOV> outputs;
@@ -37,7 +38,7 @@ int main (int argc, char* argv[]){
 	for (std::vector<string>::iterator it = rawFileStrings.begin(); it != rawFileStrings.end(); ++it) {
 		std::cout << *it << std::endl;
 	}
-	std::cout << "......................................" << std::endl;
+	std::cout << "......................................" << std::endl << std::endl;
 
 
 	IOV::generateIOV(&rawFileStrings, &inputs, &outputs, &variables);
@@ -68,5 +69,14 @@ int main (int argc, char* argv[]){
 	std::cout << "......................................" << std::endl << std::endl;
 	g1->parseOperations();
 	//g1->printGraph();
+	//Vertex::latency = 10;
+	std::cout << "......................................" << std::endl << std::endl;
+	g1->ALAP(lat);
+	std::vector<Vertex*> Verts = g1->getVertices();
+
+	for (std::vector<Vertex*>::iterator it = Verts.begin(); it != Verts.end(); ++it) {
+		std::cout << left << "Node: [" << (*it)->getString() << "]\t\t" << right << "ALAP Time:" << (*it)->getALAPTime() << std::endl;
+	}
+	std::cout << "......................................" << std::endl << std::endl;
 	return 0;
 }

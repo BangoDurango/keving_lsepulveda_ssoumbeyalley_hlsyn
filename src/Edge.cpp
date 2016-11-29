@@ -3,14 +3,14 @@
 
 Edge::Edge(std::string strType, std::string strID)
 {
-	if (strType == NOP || strType == INOP || strType == VARIABLE || strType == IF || strType == ELSE) {
+	if (strType == ONOP || strType == INOP || strType == VARIABLE || strType == IF || strType == ELSE) {
 		sType = strType;
 		ID = strID;
 
 	}
 	else {
 		std::cout << "Invalid edge type" << std::endl;
-		exit(0);
+		exit(1);
 	}
 	this->in = NULL;
 	this->out = NULL;
@@ -26,6 +26,7 @@ void Edge::setOutput(Vertex * v)
 {
 	//if (this->sType == NOP || this->sType == VARIABLE) {
 		out = v;
+		
 		return;
 	//}
 	/*else {
@@ -43,6 +44,7 @@ Vertex * Edge::getOutput()
 
 void Edge::setInput(Vertex * v)
 {
+	
 //	if (this->sType == INOP || this->sType == VARIABLE) {
 		in = v;
 		return;
