@@ -24,6 +24,10 @@ Vertex::Vertex(int n, std::string strType)
 	sType = strType;
 }
 
+Vertex::Vertex(int n, Resource inRType)
+{
+}
+
 string Vertex::checkValidOp(std::string s)
 {
 	if (s == "+") {
@@ -78,15 +82,25 @@ int Vertex::getID()
 	return ID;
 }
 
-void Vertex::setType(string s)
+void Vertex::setType(Resource * r)
 {
-	sType = s;
+	rType = r;
 }
 
-std::string Vertex::getType()
+Resource * Vertex::getType()
 {
-	return sType;
+	return rType;
 }
+
+//void Vertex::setType(string s)
+//{
+//	sType = s;
+//}
+//
+//std::string Vertex::getType()
+//{
+//	return sType;
+//}
 
 //void Vertex::setE1E2(Edge * e1, Edge * e2)
 //{
