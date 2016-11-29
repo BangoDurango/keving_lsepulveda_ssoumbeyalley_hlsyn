@@ -1,15 +1,56 @@
 #include "CDFGraph.h"
 
+Resource CDFGraph::ADDER_SUBTRACTOR;
+Resource CDFGraph::MULTIPLIER;
+Resource CDFGraph::LOGICAL;
+Resource CDFGraph::IF_STATEMENT;
+
 CDFGraph::CDFGraph()
 {
-	vONOP = new Vertex(0, ONOP);
-	vINOP = new Vertex(0, INOP);
+    std::vector<Resource*> rVec;
+	INOP.name = "INOP";
+	ONOP.name = "ONOP";
+
+	ADDER_SUBTRACTOR.cnt = 0;
+	ADDER_SUBTRACTOR.delay = 1;
+	ADDER_SUBTRACTOR.name = "Add/Sub";
+	ADDER_SUBTRACTOR.ops.push_back("+");
+	ADDER_SUBTRACTOR.ops.push_back("-");
+	rVec.push_back(&ADDER_SUBTRACTOR);
+
+	MULTIPLIER.cnt = 0;
+	MULTIPLIER.delay = 2;
+	MULTIPLIER.name = "Mult";
+	MULTIPLIER.ops.push_back("*"); 
+	rVec.push_back(&MULTIPLIER);
+
+	LOGICAL.name = "Logical";
+	LOGICAL.cnt = 0;
+	LOGICAL.delay = 1;
+	LOGICAL.ops.push_back(GT);
+	LOGICAL.ops.push_back(LT);
+	LOGICAL.ops.push_back(ET);
+	LOGICAL.ops.push_back(SL);
+	LOGICAL.ops.push_back(SR);
+	rVec.push_back(&LOGICAL);
+
+	IF_STATEMENT.name = "If/Else";
+	IF_STATEMENT.ops.push_back(IF);
+	IF_STATEMENT.ops.push_back(ELSE);
+	IF_STATEMENT.cnt = 0;
+	IF_STATEMENT.delay = 1;
+	rVec.push_back(&IF_STATEMENT);
+
+	Vertex::resources = rVec;
+
+	vONOP = new Vertex(0, &ONOP);
+	vINOP = new Vertex(0, &INOP);
 	vONOP->setString("OUTPUTS");
 	vINOP->setString("INPUTS");
-	AddSubCnt = 0;
-	MultCnt = 0;
-	LogicCnt = 0;
-	IfCnt = 0;
+	//AddSubCnt = 0;
+	//MultCnt = 0;
+	//LogicCnt = 0;
+	//IfCnt = 0;
 	//cFlag = false;
 	currBlk = new Block;
 	currBlk->addVertex(vINOP);
@@ -145,10 +186,11 @@ void CDFGraph::parseOperations()
 	//}
 	//currBlk = new Block;
 		
-	//currBlk->addVertex(vONOP);
+	currBlk->addVertex(vONOP);
 	//currC->setNextIfFalse(currBlk);
 	CDFGraph::addConditionalVertices();
 }
+
 void CDFGraph::addConditionalVertices() {
 	std::vector<Conditional*> cndVec = gControlGraph.getConditionals();
 	if (cndVec.size() == 0) {
@@ -166,51 +208,8 @@ void CDFGraph::addConditionalVertices() {
 
 	for (std::vector<Conditional*>::iterator it = cndVec.begin(); it != cndVec.end(); ++it) {
 
-		s = (*it)->getSCondition();
-
-		if ((*it)->getNextBlk_True() != NULL) {
-			currBlk = (*it)->getNextBlk_True();
-			currV = currBlk->getFirst();
-			newE = new Edge(VARIABLE, s);			
-			(*it)->getVCondition()->addOutgoing(newE);
-			currV->addIncoming(newE);
-			Edges.push_back(newE);
-			cnt++;
-		}
-		if ((*it)->getNextBlk_False() != NULL) {
-			
-			currBlk = (*it)->getNextBlk_False();
-			if (currBlk->getNodes().size() == 0) {
-				return;
-			}
-			currV = currBlk->getFirst();
-			newE = new Edge(VARIABLE, s);
-			(*it)->getVCondition()->addOutgoing(newE);
-			currV->addIncoming(newE);
-			Edges.push_back(newE);
-			cnt++;
-		}
-		if ((*it)->getNextCondition_True() != NULL) {
-			currCnd = (*it)->getNextCondition_True();
-			currV = currCnd->getVCondition();
-			newE = new Edge(VARIABLE, s);
-			(*it)->getVCondition()->addOutgoing(newE);
-			currV->addIncoming(newE);
-			Edges.push_back(newE);
-			cnt++;
-		}
-		if ((*it)->getNextCondition_False() != NULL) {
-			currCnd = (*it)->getNextCondition_True();
-			currV = currCnd->getVCondition();
-			newE = new Edge(VARIABLE, s);
-			(*it)->getVCondition()->addOutgoing(newE);
-			currV->addIncoming(newE);
-			Edges.push_back(newE);
-			cnt++;
-		}
-		if (cnt > 2) {
-			std::cout << "WARNING!!! something probably went wrong hooking up conditional: " << s << std::endl;
-		}
+		(*it)->connectVCnd();
+		
 		if ((*it)->getVCondition()->getOutgoing().front()->getOutput() == NULL) {
 			(*it)->getVCondition()->fixOutGoing();
 			//This is ugly and I hate it.
@@ -239,10 +238,11 @@ Vertex* CDFGraph::parseConditional(string s) {
 	int nID;
 	std::vector<string> tok;
 	tok = Parser::splitByWhitespace(s);
-	IfCnt++;
-	nID = IfCnt;
-	newV = new Vertex(nID);
-	newV->setType(IF);
+	//IfCnt++;
+	//IF_STATEMENT.cnt++;
+	//nID = IF_STATEMENT.cnt;
+	newV = new Vertex();
+	newV->setType(&IF_STATEMENT);
 
 	CDFGraph::parseInput(tok.at(2), newV);
 	CDFGraph::parseOutput(tok.at(2), newV);
@@ -260,25 +260,33 @@ void CDFGraph::parseOperation(string s) {
 	if (tok.size() == 5) {
 		std::cout << tok.at(0) << '\t' << tok.at(1) << '\t' << tok.at(2) << '\t' << tok.at(3) << '\t' << tok.at(4) << std::endl;
 
-		std::string tp = Vertex::checkValidOp(tok.at(3));
-		if (tp != INVALID) {
+		//std::string tp = Vertex::checkValidOp(tok.at(3));
+		Resource* tp = Vertex::checkValidOp(tok.at(3));
+		if (tp != NULL) {
 			int nID;
-			if (tp == PLUS || tp == MINUS) {
-				this->AddSubCnt++;
-				nID = AddSubCnt;
-				newV = new Vertex(nID);
+			if (tp == &ADDER_SUBTRACTOR) {
+				/*this->AddSubCnt++;
+				nID = AddSubCnt;*/
+				//ADDER_SUBTRACTOR.cnt++;
+				//nID = ADDER_SUBTRACTOR.cnt;
+				newV = new Vertex();
 				newV->setType(tp);
 			}
-			else if (tp == MULT) {
-				this->MultCnt++;
-				nID = MultCnt;
-				newV = new Vertex(nID);
-				newV->setType(MULT);
+			else if (tp == &MULTIPLIER) {
+				/*this->MultCnt++;
+				nID = MultCnt;*/
+				//MULTIPLIER.cnt++;
+				//nID = MULTIPLIER.cnt;
+				newV = new Vertex();
+				newV->setType(&MULTIPLIER);
 			}
-			else if (tp == LT || tp == GT || tp == ET || tp == SL || tp == SR) {
-				this->LogicCnt++;
-				nID = LogicCnt;
-				newV = new Vertex(nID);
+			//else if (tp == LT || tp == GT || tp == ET || tp == SL || tp == SR) {
+			else if (tp == &LOGICAL){
+				//this->LogicCnt++;
+				//nID = LogicCnt;
+				//LOGICAL.cnt++;
+				//nID = LOGICAL.cnt;
+				newV = new Vertex();
 				newV->setType(tp);
 			}
 		}
@@ -306,7 +314,7 @@ void CDFGraph::parseInput(string s, Vertex* newV) {
 
 
 	if (getIOVbyName(s)->getType() == INPUT) {
-		newEdge = new Edge(INOP, s);
+		newEdge = new Edge(eINOP, s);
 		//newEdge->setInput(vINOP);
 		vINOP->addOutgoing(newEdge);
 		newV->addIncoming(newEdge);
@@ -353,7 +361,7 @@ void CDFGraph::parseOutput(string s, Vertex* newV) {
 //	Edge* eTMP;
 	/***********************output (0)****************************/
 	if (getIOVbyName(s)->getType() == OUTPUT) {
-		newEdge = new Edge(ONOP, s);
+		newEdge = new Edge(eONOP, s);
 		//newEdge->setInput(newV);
 		vONOP->addIncoming(newEdge);
 		newV->addOutgoing(newEdge);
@@ -421,7 +429,7 @@ void CDFGraph::ALAP(CDFGraph * g, Vertex * v, int time)
 	for (std::vector<Edge*>::iterator it = eVec.begin(); it != eVec.end(); ++it) {
 	
 		nxt = (*it)->getInput();
-		if (nxt->getType() != INOP) {
+		if (nxt->getType() != &INOP) {
 			if (nxt->getALAPTime() > time) {
 				nxt->setALAPTime(time);
 				ALAP(g, nxt, time - 1);
@@ -431,7 +439,9 @@ void CDFGraph::ALAP(CDFGraph * g, Vertex * v, int time)
 	}
 
 }
-
+void CDFGraph::ALAP(CDFGraph * g, int n) {
+	g->ALAP(n);
+}
 void CDFGraph::ALAP(int n)
 {
 	//Vertex::setLatency(n);
@@ -440,4 +450,18 @@ void CDFGraph::ALAP(int n)
 		(*it)->setALAPTime(Vertex::latency);
 	}
 	ALAP(this, vONOP, n); 
+}
+void CDFGraph::LIST_R(CDFGraph * g, Vertex * v) {
+	//g->LIST_R()
+}
+
+void CDFGraph::LIST_R(int n) {
+	
+
+
+
+	CDFGraph::ALAP(this, n);
+	//LIST_R(this, )
+	int t = 1;
+
 }

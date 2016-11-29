@@ -5,8 +5,8 @@
 #include "Vertex.h"
 #include "Edge.h"
 //#include "CDFGraph.h"
-#include "Conditional.h"
-
+//#include "Conditional.h"
+class Conditional;
 class Block {
 
 public:

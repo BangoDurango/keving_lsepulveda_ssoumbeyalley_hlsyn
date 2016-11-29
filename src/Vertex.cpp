@@ -1,31 +1,54 @@
 #include "Vertex.h"
 int Vertex::latency;
+std::vector<Resource*> Vertex::resources;
+
 
 Vertex::Vertex() {
+	rType = NULL;
 	visited = false;
 	strNode = "a";
 	ALAPtime = latency;
 	//ALAPtime = CDFGraph::latency;
 }
-Vertex::Vertex(int n)
+//Vertex::Vertex(int n)
+//{
+//	rType = NULL;
+//	strNode = "b";
+//	ALAPtime = Vertex::latency;
+//	visited = false;
+//	ID = n;
+//}
+//
+//Vertex::Vertex(int n, std::string strType)
+//{
+//	strNode = "c";
+//	ALAPtime = Vertex::latency;
+//	visited = false;
+//	ID = n;
+//	sType = strType;
+//}
+
+Vertex::Vertex(int n, Resource* inRType)
 {
-	strNode = "b";
-	ALAPtime = Vertex::latency;
-	visited = false;
-	ID = n;
+		ALAPtime = Vertex::latency;
+		visited = false;
+		ID = n;
+		//sType = strType;
+		rType = inRType;
 }
 
-Vertex::Vertex(int n, std::string strType)
+Resource* Vertex::checkValidOp(std::string s)
 {
-	strNode = "c";
-	ALAPtime = Vertex::latency;
-	visited = false;
-	ID = n;
-	sType = strType;
-}
-
-string Vertex::checkValidOp(std::string s)
-{
+	//std::vector<Resource*> rVec;
+	bool flag = false;
+	for (std::vector<Resource*>::iterator it = resources.begin(); it != resources.end(); ++it){
+		//if ((*it)->)
+		for (std::vector<std::string>::iterator sIt = (*it)->ops.begin(); sIt != (*it)->ops.end(); ++it){
+			return *it;
+		}
+	}
+	return NULL;
+/*
 	if (s == "+") {
 		return PLUS;
 	}
@@ -55,7 +78,7 @@ string Vertex::checkValidOp(std::string s)
 	}
 
 
-	return INVALID;
+	return INVALID;*/
 }
 
 void Vertex::setString(std::string s)
@@ -78,15 +101,28 @@ int Vertex::getID()
 	return ID;
 }
 
-void Vertex::setType(string s)
-{
-	sType = s;
+void Vertex::setType(Resource * r)
+{	
+	int nCnt = r->cnt + 1;
+	r->cnt = nCnt;
+	this->ID = r->cnt;
+	rType = r;
 }
 
-std::string Vertex::getType()
+Resource * Vertex::getType()
 {
-	return sType;
+	return rType;
 }
+
+//void Vertex::setType(string s)
+//{
+//	sType = s;
+//}
+//
+//std::string Vertex::getType()
+//{
+//	return sType;
+//}
 
 //void Vertex::setE1E2(Edge * e1, Edge * e2)
 //{

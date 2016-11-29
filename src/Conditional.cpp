@@ -99,3 +99,37 @@ std::string Conditional::getSCondition()
 {
 	return sArg;
 }
+
+void Conditional::connectVCnd(){
+
+	std::vector<Vertex*> vVec;
+	
+	Edge* newE;
+	//for (std::vector<Vertex*>::iterator it = )
+	if (blkNextIfTrue != NULL){
+		vVec = blkNextIfTrue->getNodes();
+		for (std::vector<Vertex*>::iterator it = vVec.begin(); it != vVec.end(); ++it) {
+			newE = new Edge(VARIABLE, this->sArg);
+			this->vCondition->addOutgoing(newE);
+			(*it)->addIncoming(newE);
+		}
+	}
+	else if (cndNextIfTrue != NULL){
+		newE = new Edge(VARIABLE, this->sArg);
+		cndNextIfTrue->getVCondition()->addIncoming(newE);
+	}
+
+	/////////////////////////////////////////////
+	if (blkNextIfFalse != NULL){
+		vVec = blkNextIfFalse->getNodes();
+		for (std::vector<Vertex*>::iterator it = vVec.begin(); it != vVec.end(); ++it) {
+			newE = new Edge(VARIABLE, this->sArg);
+			this->vCondition->addOutgoing(newE);
+			(*it)->addIncoming(newE);
+		}
+	}
+	else if (cndNextIfFalse != NULL){
+		newE = new Edge(VARIABLE, this->sArg); 
+		cndNextIfFalse->getVCondition()->addIncoming(newE);
+	}
+}

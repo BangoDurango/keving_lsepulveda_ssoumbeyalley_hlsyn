@@ -6,18 +6,22 @@
 #include "Edge.h"
 
 class Vertex {
-
+	friend class CDFGraph;
 public:
 	Vertex();
-	Vertex(int n);
-	Vertex(int n, std::string strType);
-	static std::string checkValidOp(std::string s);
+	//Vertex(int n);
+	//Vertex(int n, std::string strType);
+	Vertex(int n, Resource* inRType);
+	static Resource* checkValidOp(std::string s);
 	void setString(std::string s);
 	std::string getString();
 	void setID(int n);
 	int getID();
-	void setType(string s);
-	std::string getType();
+	//void setType(string s);
+	//std::string getType();
+	void setType(Resource *r);
+	Resource* getType();
+
 	void printVertex();
 	std::vector<Edge*> getOutgoing();
 	std::vector<Edge*> getIncoming();
@@ -34,7 +38,8 @@ public:
 	void setALAPTime(int n);
 	
 private:
-	std::string sType;
+	//std::string sType;
+	Resource* rType;
 	std::string strNode;
 	int ID;
 	//int vNumber;
@@ -42,7 +47,7 @@ private:
 	std::vector<Edge*> outgoing;
 	bool visited;
 	int ALAPtime;
-	
+	static std::vector<Resource*> resources;
 
 
 };
