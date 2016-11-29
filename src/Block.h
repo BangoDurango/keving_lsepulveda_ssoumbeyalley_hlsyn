@@ -1,22 +1,24 @@
-#ifndef FUNC_H
-#define FUNC_H
+#ifndef BLOCK_H
+#define BLOCK_H
 
 #include "main.h"
 #include "Vertex.h"
 #include "Edge.h"
+//#include "CDFGraph.h"
 #include "Conditional.h"
-class Func {
+
+class Block {
 
 public:
 
 	void addVertex(Vertex* v);
 	void addEdge(Edge* e);
 	void setPrev(Conditional* c);
-	void setPrev(Func* f);
+	void setPrev(Block* f);
 	void setNext(Conditional* c);
-	void setNext(Func* f);
+	void setNext(Block* f);
 	void clearNext();
-	Func* updatePrev(Conditional* c);
+	Block* updatePrev(Conditional* c);
 	//Conditional* getPrev();
 	//Conditional* getNext();
 private:
@@ -26,7 +28,7 @@ private:
 	
 	Conditional* cPrev;
 	Conditional* cNext;
-	Func* fPrev;
-	Func* fNext;
+	Block* fPrev;
+	Block* fNext;
 };
 #endif

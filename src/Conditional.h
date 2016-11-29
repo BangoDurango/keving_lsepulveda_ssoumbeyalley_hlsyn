@@ -4,25 +4,25 @@
 
 #include "main.h"
 
-class Func;
+class Block;
 class Conditional {
 
 public:
 	Conditional();
 	Conditional(std::string Arg);
-	Conditional(std::string s, Func* fPrev);
-	void setNextIfTrue(Func* f);
+	Conditional(std::string s, Block* fPrev);
+	void setNextIfTrue(Block* f);
 	void setNextIfTrue(Conditional *c);
-	void setNextIfFalse(Func* f);
+	void setNextIfFalse(Block* f);
 	void setNextIfFalse(Conditional *c);
 
 
 
 private:
 	std::string sArg;
-	Func* fPrev;
-	Func* fNextIfTrue;
-	Func* fNextIfFalse;
+	Block* fPrev;
+	Block* fNextIfTrue;
+	Block* fNextIfFalse;
 	Conditional* cNextIfTrue;
 	Conditional* cNextIfFalse;
 

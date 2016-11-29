@@ -1,20 +1,20 @@
 #pragma once
-#ifndef CDFG_H
-#define CDFG_H
+#ifndef CONTROLGRAPH_H
+#define CONTROLGRAPH_H
 
 #include "main.h"
-#include "Func.h"
+#include "Block.h"
 #include "Conditional.h"
 
-class CDFG {
+class ControlGraph {
 
 public:
 	
-	void addFunction(Func* f);
+	void addBlock(Block* f);
 	void addConditional(Conditional *c);
 
 private:
-	std::vector<Func*> functions;
+	std::vector<Block*> blocks;
 	std::vector<Conditional*> conditionals;
 };
 #endif

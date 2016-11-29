@@ -1,29 +1,44 @@
-#include "Graph.h"
+#include "CDFGraph.h"
 
-Graph::Graph()
+CDFGraph::CDFGraph()
 {
-	vNOP = new Vertex(0, NOP);
+	vONOP = new Vertex(0, ONOP);
 	vINOP = new Vertex(0, INOP);
-	vNOP->setString("OUTPUTS");
+	vONOP->setString("OUTPUTS");
 	vINOP->setString("INPUTS");
 	AddSubCnt = 0;
 	MultCnt = 0;
 	LogicCnt = 0;
 	IfCnt = 0;
 	//cFlag = false;
-	currF = new Func;
-	currF->addVertex(vINOP);
-	gCDFG.addFunction(currF);
+	currBlk = new Block;
+	currBlk->addVertex(vINOP);
+	gControlGraph.addBlock(currBlk);
+	StartBlock = currBlk;
 	_last = FUNCTION;
 }
 
-void Graph::loadFileStrings(std::vector<string> strVec)
+void CDFGraph::setLatency(int n)
+{
+	if (n <= 0) {
+		std::cout << "Negative or zero latency" << std::endl;
+		exit(1);
+	}
+	latency = n;
+}
+
+int CDFGraph::getLatency()
+{
+	return latency;
+}
+
+void CDFGraph::loadFileStrings(std::vector<string> strVec)
 {
 	this->FileStrings = strVec;
 	std::cout << "Raw Strings Loaded." << std::endl;
 }
 
-void Graph::loadIOV(std::vector<IOV> ins, std::vector<IOV> outs, std::vector<IOV> vars)
+void CDFGraph::loadIOV(std::vector<IOV> ins, std::vector<IOV> outs, std::vector<IOV> vars)
 {
 	inputs = ins;
 	outputs = outs;
@@ -31,7 +46,7 @@ void Graph::loadIOV(std::vector<IOV> ins, std::vector<IOV> outs, std::vector<IOV
 	std::cout << "IOVs Loaded." << std::endl;
 }
 
-IOV* Graph::getIOVbyName(std::string s)
+IOV* CDFGraph::getIOVbyName(std::string s)
 {
 	for (std::vector<IOV>::iterator it = inputs.begin(); it != inputs.end(); ++it) {
 		if (it->getName() == s) {
@@ -52,16 +67,16 @@ IOV* Graph::getIOVbyName(std::string s)
 
 }
 
-void Graph::parseOperations()
+void CDFGraph::parseOperations()
 {
-	//conditionalFlag = false;
+
 	Conditional* newC;
-	Func* newF;
-	Func* tempF;
+	Block* newF;
+	Block* tempF;
 
 	if (this->FileStrings.size() == 0) {
 		std::cout << "No File Strings Loaded to Graph" << std::endl;
-		exit(0);
+		exit(1);
 	}
 	for (std::vector<string>::iterator it = FileStrings.begin(); it != FileStrings.end(); ++it) {
 		
@@ -69,7 +84,7 @@ void Graph::parseOperations()
 			newC = new Conditional(*it);
 			
 			if (_last == FUNCTION) {
-				currF->setNext(newC);
+				currBlk->setNext(newC);
 			}
 			else if (_last == CONDITIONAL) {
 				currC->setNextIfTrue(newC);
@@ -83,19 +98,19 @@ void Graph::parseOperations()
 		}
 		else if (std::size_t found = it->find(ELSE) != std::string::npos) {
 		
-			tempF = currF->updatePrev(currC);
+			tempF = currBlk->updatePrev(currC);
 		}
 		else if (std::size_t found = it->find("}") != std::string::npos) {
-			newF = new Func();
-			currF->setNext(newF);
-			newF->setPrev(currF);
-			currF = newF;
+			newF = new Block();
+			currBlk->setNext(newF);
+			newF->setPrev(currBlk);
+			currBlk = newF;
 			if (tempF != NULL) {
 				tempF->setNext(newF);
 				tempF = NULL;
 			}
 			else {
-				CondVec.back()->setNextIfFalse(currF);
+				CondVec.back()->setNextIfFalse(currBlk);
 				CondVec.pop_back();
 			}
 			
@@ -105,18 +120,18 @@ void Graph::parseOperations()
 		}
 		else {
 			if (_last == CONDITIONAL) {
-				currF = new Func();
-				currF->setPrev(currC);
-				currC->setNextIfTrue(currF);
+				currBlk = new Block();
+				currBlk->setPrev(currC);
+				currC->setNextIfTrue(currBlk);
 				_last = FUNCTION;
 			}
 			parseOperation(*it);
 		}
 	}
-	currF->addVertex(vNOP);
+	currBlk->addVertex(vONOP);
 }
 
-std::vector<Edge*> Graph::getEdgesByID(string s)
+std::vector<Edge*> CDFGraph::getEdgesByID(string s)
 {
 	std::vector<Edge*> vec;
 	for (std::vector<Edge*>::iterator it = Edges.begin(); it != Edges.end(); ++it) {
@@ -127,7 +142,8 @@ std::vector<Edge*> Graph::getEdgesByID(string s)
 	return vec;
 }
 
-void Graph::parseOperation(string s) {
+
+void CDFGraph::parseOperation(string s) {
 
 	std::vector<string> tok;
 
@@ -136,7 +152,6 @@ void Graph::parseOperation(string s) {
 	tok = Parser::splitByWhitespace(s);
 	if (tok.size() == 5) {
 		std::cout << tok.at(0) << '\t' << tok.at(1) << '\t' << tok.at(2) << '\t' << tok.at(3) << '\t' << tok.at(4) << std::endl;
-
 
 		std::string tp = Vertex::checkValidOp(tok.at(3));
 		if (tp != INVALID) {
@@ -161,9 +176,9 @@ void Graph::parseOperation(string s) {
 			}
 		}
 		
-		Graph::parseOutput(tok.at(0), newV);
-		Graph::parseInput(tok.at(2), newV);
-		Graph::parseInput(tok.at(4), newV);
+		CDFGraph::parseOutput(tok.at(0), newV);
+		CDFGraph::parseInput(tok.at(2), newV);
+		CDFGraph::parseInput(tok.at(4), newV);
 		
 		//if (cFlag == true) {
 		//	
@@ -172,10 +187,10 @@ void Graph::parseOperation(string s) {
 		//	cFlag = false;
 		//}
 		Vertices.push_back(newV);
-		currF->addVertex(newV);
+		currBlk->addVertex(newV);
 	}
 }
-void Graph::parseInput(string s, Vertex* newV) {
+void CDFGraph::parseInput(string s, Vertex* newV) {
 
 	Edge* newEdge;
 	std::vector<Edge*> eVec;
@@ -188,17 +203,17 @@ void Graph::parseInput(string s, Vertex* newV) {
 		vINOP->addOutgoing(newEdge);
 		newV->addIncoming(newEdge);
 		this->Edges.push_back(newEdge);
-		this->currF->addEdge(newEdge);
+		this->currBlk->addEdge(newEdge);
 	}
 	else if (getIOVbyName(s)->getType() == VARIABLE) {
 
-		eVec = Graph::getEdgesByID(s);
+		eVec = CDFGraph::getEdgesByID(s);
 		if (eVec.size() == 0) {
 			newEdge = new Edge(VARIABLE, s);
 			newEdge->setOutput(newV);
 			newEdge->setInput(vINOP);
 			this->Edges.push_back(newEdge);
-			this->currF->addEdge(newEdge);
+			this->currBlk->addEdge(newEdge);
 		}
 		else {
 			for (std::vector<Edge*>::iterator it = eVec.begin(); it != eVec.end(); ++it) {
@@ -212,7 +227,7 @@ void Graph::parseInput(string s, Vertex* newV) {
 					eTMP->setOutput(newV);
 					(*it)->getInput()->addOutgoing(eTMP);
 					this->Edges.push_back(eTMP);
-					this->currF->addEdge(eTMP);
+					this->currBlk->addEdge(eTMP);
 				}
 
 			}
@@ -224,30 +239,30 @@ void Graph::parseInput(string s, Vertex* newV) {
 }
 
 
-void Graph::parseOutput(string s, Vertex* newV) {
+void CDFGraph::parseOutput(string s, Vertex* newV) {
 
 	Edge* newEdge;
 //	Edge* eTMP;
 	/***********************output (0)****************************/
 	if (getIOVbyName(s)->getType() == OUTPUT) {
-		newEdge = new Edge(NOP, s);
-		vNOP->addIncoming(newEdge);
+		newEdge = new Edge(ONOP, s);
+		vONOP->addIncoming(newEdge);
 		newV->addOutgoing(newEdge);
 		this->Edges.push_back(newEdge);
-		this->currF->addEdge(newEdge);
+		this->currBlk->addEdge(newEdge);
 	}
 	else if (getIOVbyName(s)->getType() == VARIABLE) {
 		newEdge = new Edge(VARIABLE, s);
 		newEdge->setInput(newV);
 		newV->addOutgoing(newEdge);
 		this->Edges.push_back(newEdge);
-		this->currF->addEdge(newEdge);
+		this->currBlk->addEdge(newEdge);
 	}
 	else {
 
 	}
 }
-void Graph::parseIF(string s, Conditional *c) {
+void CDFGraph::parseIF(string s, Conditional *c) {
 	std::vector<string> tok;
 	Edge* newE;
 	//Vertex* newV;
@@ -256,37 +271,63 @@ void Graph::parseIF(string s, Conditional *c) {
 	if (tok.size() == 5) {
 		std::cout << tok.at(0) << '\t' << tok.at(1) << '\t' << tok.at(2) << '\t' << tok.at(3) << '\t' << tok.at(4) << std::endl;
 		
-		
 	}
 
 
 }
-void Graph::printGraph() {
+void CDFGraph::printGraph() {
 	std::cout << "Printing graph:" << std::endl;
 	std::cout << "Contents of Vertex Vector: " << std::endl << std::endl;
 
 	Vertex* vcurr;
 	Vertex* vnext;
 	Edge* eCurr;
-	vcurr = this->vNOP;
+	vcurr = this->vONOP;
 
-	//for (std::vector<Vertex*>::iterator it = Vertices.begin(); it != Vertices.end(); ++it) {
-	//	(*it)->printVertex();
-	//}
-	//std::cout << "Using IOV inputs: " << std::endl << std::endl;
-	//for (std::vector<IOV>::iterator it = inputs.begin(); it != inputs.end(); ++it) {
-	//	eCurr = getEdgeByID(it->getName());
-	//	std::cout << "Starting input: " << it->getName() << std::endl;
-	//	vcurr = eCurr->getOutput();
-	//	do {
-	//		//vcurr = eCurr->getOutput();
-	//		if (vcurr == NULL) {
-	//			std::cout << "Null pointer, something happened iterating through graph (printGraph())" << std::endl;
-	//			break;
-	//		}
-	//		vcurr->printVertex();
-	//		eCurr = vcurr->getE0();
-	//		vcurr = eCurr->getOutput();
-	//	} while (vcurr->getType() != NOP);
-	//}
+}
+
+void CDFGraph::DFS(CDFGraph * g, Vertex * v)
+{	
+	Vertex* nxt;
+	std::vector<Edge*> eVec = v->getOutgoing();
+	v->visit();
+	for (std::vector<Edge*>::iterator it = eVec.begin(); it != eVec.end(); ++it) {
+		nxt = (*it)->getInput();
+		if (nxt->checkVisited() == false) {
+			DFS(g, nxt);
+		}
+	}
+}
+
+void CDFGraph::ALAP(CDFGraph * g, Vertex * v, int time)
+{
+	Vertex* nxt;
+	
+	if (time < 1) {
+		std::cout << "Latency constraint insufficient to schedule all operations." << std::endl;
+		exit(1);
+	}
+	
+	std::vector<Edge*> eVec = v->getIncoming();
+	//v->visit();
+
+	for (std::vector<Edge*>::iterator it = eVec.begin(); it != eVec.end(); ++it) {
+	
+		nxt = (*it)->getInput();
+		if (nxt->getType() != INOP) {
+			if (nxt->getALAPTime() > time) {
+				nxt->setALAPTime(time);
+				ALAP(g, nxt, time - 1);
+			}
+
+		}
+	}
+
+}
+
+void CDFGraph::ALAP(int n)
+{
+	//Vertex::setLatency(n);
+	Vertex::latency = n;
+	ALAP(this, vONOP, n); 
 }

@@ -18,7 +18,7 @@ File: Parser.h
 #include "main.h"
 //#include "V_Module.h"
 
-using namespace std;
+//using namespace std;
 
 class Parser {
 

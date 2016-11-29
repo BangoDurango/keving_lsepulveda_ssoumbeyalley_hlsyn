@@ -5,14 +5,14 @@ Conditional::Conditional() {
 Conditional::Conditional(std::string Arg) {
 	sArg = Arg;
 }
-Conditional::Conditional(std::string Arg, Func * inPrev)
+Conditional::Conditional(std::string Arg, Block *inPrev)
 {
 	sArg = Arg;
 	fPrev = inPrev;
 
 }
 
-void Conditional::setNextIfTrue(Func * f)
+void Conditional::setNextIfTrue(Block *f)
 {
 	if (cNextIfTrue != NULL) {
 		std::cout << "warning: Conditional already has both function and condition assigned to next." << std::endl;
@@ -20,7 +20,7 @@ void Conditional::setNextIfTrue(Func * f)
 	fNextIfTrue = f;
 }
 
-void Conditional::setNextIfTrue(Conditional * c)
+void Conditional::setNextIfTrue(Conditional *c)
 {
 	if (fNextIfTrue != NULL) {
 		std::cout << "warning: Conditional already has both function and condition assigned to next." << std::endl;
@@ -28,7 +28,7 @@ void Conditional::setNextIfTrue(Conditional * c)
 	cNextIfTrue = c;
 }
 
-void Conditional::setNextIfFalse(Func * f)
+void Conditional::setNextIfFalse(Block * f)
 {
 	if (cNextIfFalse != NULL) {
 		std::cout << "warning: Conditional already has both function and condition assigned to next." << std::endl;
