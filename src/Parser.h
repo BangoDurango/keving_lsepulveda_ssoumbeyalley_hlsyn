@@ -25,6 +25,7 @@ class Parser {
 public:
 
 	static void parseFile(char* inFileStr, std::vector<string>* lines);
+	static std::string trim(string & str);
 	static vector<std::string> splitByWhitespace(std::string line);
 	static std::string getModuleName(std::string filePath);
 	static std::string getFilePath(std::string filePath);

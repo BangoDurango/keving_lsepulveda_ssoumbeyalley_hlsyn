@@ -28,12 +28,14 @@ public:
 	void parseOperation(string s);
 	void parseInput(string s, Vertex* newV);
 	void parseOutput(string s, Vertex* newV);
-	void parseIF(string s, Conditional *c);
+	//void parseIF(string s, Conditional *c);
 	void printGraph();
 	void parseOperations();
+	void addConditionalVertices();
+	Vertex* parseConditional(string s);
 	//Conditional* parseConditional(string s);
 	std::vector<Edge*> getEdgesByID(string s);
-
+	std::vector<Vertex*> getVertices();
 	void DFS(CDFGraph* g, Vertex* v);
 	void ALAP(CDFGraph* g, Vertex* v, int time);
 	void ALAP(int n);

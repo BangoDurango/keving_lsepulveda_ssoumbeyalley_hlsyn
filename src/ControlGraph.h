@@ -12,7 +12,9 @@ public:
 	
 	void addBlock(Block* f);
 	void addConditional(Conditional *c);
-
+	Block* dropLast();
+	std::vector<Block*> getBlocks();
+	std::vector<Conditional*> getConditionals();
 private:
 	std::vector<Block*> blocks;
 	std::vector<Conditional*> conditionals;

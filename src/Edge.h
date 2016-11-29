@@ -7,19 +7,23 @@
 #include "IOV.h"
 class Vertex;
 class Edge {
-
+	friend class Vertex;
 public:
 	Edge(std::string strType, std::string strID);
 	Edge(Vertex *v1, Vertex *v2);
-	void setOutput(Vertex *v);
+	
 
 	Vertex* getOutput();
-	void setInput(Vertex *v);
+
 	Vertex* getInput();
 	void setID(string s);
 	std::string getID();
 	void printEdge();
+protected:
+	void setInput(Vertex *v);
+	void setOutput(Vertex *v);
 private:
+
 	std::string sType;
 	std::string ID;
 	Vertex *out;

@@ -28,6 +28,14 @@
 //
 //}
 
+Block::Block()
+{
+	cPrev = NULL;
+	cNext = NULL;
+	blkPrev = NULL;
+	blkNext = NULL;
+}
+
 void Block::addVertex(Vertex * v)
 {
 	nodes.push_back(v);
@@ -40,8 +48,8 @@ void Block::addEdge(Edge * e)
 
 void Block::setPrev(Conditional * c)
 {
-	if (fPrev != NULL) {
-		std::cout << "warning: Function already has both function and condition assigned to next." << std::endl;
+	if (blkPrev != NULL) {
+		std::cout << "warning: Block already has both function and condition assigned to next." << std::endl;
 	}
 	cPrev = c;
 }
@@ -49,15 +57,15 @@ void Block::setPrev(Conditional * c)
 void Block::setPrev(Block * f)
 {
 	if (cPrev != NULL) {
-		std::cout << "warning: Function already has both function and condition assigned to next." << std::endl;
+		std::cout << "warning: Block already has both function and condition assigned to next." << std::endl;
 	}
-	fPrev = f;
+	blkPrev = f;
 }
 
 void Block::setNext(Conditional * c)
 {
-	if (fNext != NULL) {
-		std::cout << "warning: Function already has both function and condition assigned to next." << std::endl;
+	if (blkNext != NULL) {
+		std::cout << "warning: Block already has both function and condition assigned to next." << std::endl;
 	}
 	cNext = c;
 }
@@ -67,23 +75,35 @@ void Block::setNext(Block * f)
 	if (cNext != NULL) {
 		std::cout << "warning: Function already has both function and condition assigned to next." << std::endl;
 	}
-	fNext = f;
+	blkNext = f;
 }
 
 void Block::clearNext()
 {
-	this->fNext = NULL;
+	this->blkNext = NULL;
+}
+
+std::vector<Vertex*> Block::getNodes()
+{
+	return nodes;
 }
 
 Block* Block::updatePrev(Conditional* c)
 {
 	Block* tmp;
-	tmp = fPrev;
-	fPrev->clearNext();
-	this->fPrev = NULL;
+	tmp = blkPrev;
+	blkPrev->clearNext();
+	this->blkPrev = NULL;
 	this->setPrev(c);
 	return tmp;
 }
+
+Vertex * Block::getFirst()
+{
+	return nodes.front();
+}
+
+
 
 
 

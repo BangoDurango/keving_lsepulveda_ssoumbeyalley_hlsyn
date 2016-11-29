@@ -3,7 +3,8 @@
 #define IF_H
 
 #include "main.h"
-
+#include "Vertex.h"
+#include "Parser.h"
 class Block;
 class Conditional {
 
@@ -11,20 +12,25 @@ public:
 	Conditional();
 	Conditional(std::string Arg);
 	Conditional(std::string s, Block* fPrev);
-	void setNextIfTrue(Block* f);
+	void setNextIfTrue(Block* blk);
 	void setNextIfTrue(Conditional *c);
-	void setNextIfFalse(Block* f);
+	void setNextIfFalse(Block* blk);
 	void setNextIfFalse(Conditional *c);
-
-
-
+	Block* getNextBlk_True();
+	Block* getNextBlk_False();
+	Conditional* getNextCondition_True();
+	Conditional* getNextCondition_False();
+	void setVCondition(Vertex* v);
+	
+	Vertex* getVCondition();
+	std::string getSCondition();
 private:
 	std::string sArg;
-	Block* fPrev;
-	Block* fNextIfTrue;
-	Block* fNextIfFalse;
-	Conditional* cNextIfTrue;
-	Conditional* cNextIfFalse;
-
+	Block* blkPrev;
+	Block* blkNextIfTrue;
+	Block* blkNextIfFalse;
+	Conditional* cndNextIfTrue;
+	Conditional* cndNextIfFalse;
+	Vertex* vCondition;
 };
 #endif

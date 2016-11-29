@@ -18,7 +18,7 @@
 #define SR ">>"
 #define MUX "?"
 #define INOP "INOP"
-#define ONOP "NOP"
+#define ONOP "ONOP"
 #define IF "if ("
 #define ELSE "else {"
 #define SIGNED true

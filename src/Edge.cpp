@@ -26,6 +26,7 @@ void Edge::setOutput(Vertex * v)
 {
 	//if (this->sType == NOP || this->sType == VARIABLE) {
 		out = v;
+		
 		return;
 	//}
 	/*else {
@@ -43,6 +44,7 @@ Vertex * Edge::getOutput()
 
 void Edge::setInput(Vertex * v)
 {
+	
 //	if (this->sType == INOP || this->sType == VARIABLE) {
 		in = v;
 		return;
