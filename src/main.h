@@ -18,7 +18,7 @@
 #define SR ">>"
 #define MUX "?"
 #define INOP "INOP"
-#define NOP "NOP"
+#define ONOP "NOP"
 #define IF "if ("
 #define ELSE "else {"
 #define SIGNED true
@@ -39,4 +39,4 @@
 
 using namespace std;
 
-enum Block { CONDITIONAL, FUNCTION };
+enum BlockType { CONDITIONAL, FUNCTION };

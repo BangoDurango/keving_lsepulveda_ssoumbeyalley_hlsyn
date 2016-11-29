@@ -1,21 +1,27 @@
 #pragma once
-#ifndef GRAPH_H
-#define GRAPH_H
+#ifndef CDFGRAPH_H
+#define CDFGRAPH_H
 
 #include "main.h"
+#include "Parser.h"
+
+
+#include "IOV.h"
 #include "Edge.h"
 #include "Vertex.h"
-#include "Parser.h"
-#include "Func.h"
-#include "CDFG.h"
 
+#include "ControlGraph.h"
+//class Vertex;
+//class Edge;
 
-class Graph {
+class CDFGraph {
 
 public:
 
-	Graph();
-	
+	CDFGraph();
+
+	void setLatency(int n);
+	int getLatency();
 	void loadFileStrings(std::vector<string> strVec);
 	void loadIOV(std::vector<IOV> ins, std::vector<IOV> outs, std::vector<IOV> vars);
 	IOV *getIOVbyName(std::string s);
@@ -28,15 +34,16 @@ public:
 	//Conditional* parseConditional(string s);
 	std::vector<Edge*> getEdgesByID(string s);
 
+	void DFS(CDFGraph* g, Vertex* v);
+	void ALAP(CDFGraph* g, Vertex* v, int time);
+	void ALAP(int n);
+
 private:
 	std::vector<IOV> inputs;
-	std::vector<IOV> outputs; 
+	std::vector<IOV> outputs;
 	std::vector<IOV> variables;
 	Vertex* vINOP;
-	Vertex* vNOP;
-	//std::vector<Edge*> vINOP;
-	//std::vector<Edge*> vNOP;
-	//std::vector<Edge*> vVAR;
+	Vertex* vONOP;
 
 	std::vector<Vertex*> Vertices;
 	std::vector<Edge*> Edges;
@@ -47,10 +54,15 @@ private:
 	int LogicCnt;
 	int IfCnt;
 
-	CDFG gCDFG;
-	Func* currF;
+	ControlGraph gControlGraph;
+	Block* currBlk;
+	Block* StartBlock;
 	Conditional* currC;
 	std::vector<Conditional*> CondVec;
-	Block _last;
+	BlockType _last;
+
+	int latency;
 };
+
+
 #endif

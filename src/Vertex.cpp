@@ -1,18 +1,23 @@
 #include "Vertex.h"
+int Vertex::latency;
+
 Vertex::Vertex() {
-	isCond = false;
+	visited = false;
+	
+	ALAPtime = latency;
+	//ALAPtime = CDFGraph::latency;
 }
 Vertex::Vertex(int n)
 {
-	//Vertex();
-	isCond = false;
+	ALAPtime = Vertex::latency;
+	visited = false;
 	ID = n;
 }
 
 Vertex::Vertex(int n, std::string strType)
 {
-	//Vertex(n);
-	isCond = false;
+	ALAPtime = Vertex::latency;
+	visited = false;
 	ID = n;
 	sType = strType;
 }
@@ -107,6 +112,16 @@ void Vertex::printVertex()
 	//}
 }
 
+std::vector<Edge*> Vertex::getOutgoing()
+{
+	return outgoing;
+}
+
+std::vector<Edge*> Vertex::getIncoming()
+{
+	return incoming;
+}
+
 void Vertex::addIncoming(Edge * e)
 {
 	e->setOutput(this);
@@ -117,4 +132,39 @@ void Vertex::addOutgoing(Edge * e)
 {	
 	e->setInput(this);
 	outgoing.push_back(e);
+}
+
+void Vertex::setVNumber(int n)
+{
+	vNumber = n;
+}
+
+int Vertex::getVNumber()
+{
+	return vNumber;
+}
+
+void Vertex::visit()
+{
+	this->visited = true;
+}
+
+bool Vertex::checkVisited()
+{
+	return visited;
+}
+
+//void Vertex::setLatency(int n)
+//{
+//	latency = n;
+//}
+
+int Vertex::getALAPTime()
+{
+	return ALAPtime;
+}
+
+void Vertex::setALAPTime(int n)
+{
+	ALAPtime = n;
 }

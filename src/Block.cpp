@@ -1,44 +1,44 @@
-#include "Func.h"
+#include "Block.h"
 
 
 
 
 //
-//Func::Func(std::string sArg, Func * inPrev)
+//Block::Func(std::string sArg, Block * inPrev)
 //{
 //	arg = sArg;
 //	this->fPrev = inPrev;
 //	fPrev->setNextFunction(this);
 //}
 //
-//void Func::setElseFunction(Func * inElse)
+//void Block::setElseFunction(Block * inElse)
 //{
 //	fElse = inElse;
 //	fElse->setPrevFunction(this->fPrev);
 //}
 //
-//void Func::setNextFunction(Func * inNext)
+//void Block::setNextFunction(Block * inNext)
 //{
 //	fNext = inNext;
 //}
 //
-//void Func::setPrevFunction(Func * inPrev)
+//void Block::setPrevFunction(Block * inPrev)
 //{
 //	fPrev = inPrev;
 //
 //}
 
-void Func::addVertex(Vertex * v)
+void Block::addVertex(Vertex * v)
 {
 	nodes.push_back(v);
 }
 
-void Func::addEdge(Edge * e)
+void Block::addEdge(Edge * e)
 {
 	edges.push_back(e);
 }
 
-void Func::setPrev(Conditional * c)
+void Block::setPrev(Conditional * c)
 {
 	if (fPrev != NULL) {
 		std::cout << "warning: Function already has both function and condition assigned to next." << std::endl;
@@ -46,7 +46,7 @@ void Func::setPrev(Conditional * c)
 	cPrev = c;
 }
 
-void Func::setPrev(Func * f)
+void Block::setPrev(Block * f)
 {
 	if (cPrev != NULL) {
 		std::cout << "warning: Function already has both function and condition assigned to next." << std::endl;
@@ -54,7 +54,7 @@ void Func::setPrev(Func * f)
 	fPrev = f;
 }
 
-void Func::setNext(Conditional * c)
+void Block::setNext(Conditional * c)
 {
 	if (fNext != NULL) {
 		std::cout << "warning: Function already has both function and condition assigned to next." << std::endl;
@@ -62,7 +62,7 @@ void Func::setNext(Conditional * c)
 	cNext = c;
 }
 
-void Func::setNext(Func * f)
+void Block::setNext(Block * f)
 {
 	if (cNext != NULL) {
 		std::cout << "warning: Function already has both function and condition assigned to next." << std::endl;
@@ -70,14 +70,14 @@ void Func::setNext(Func * f)
 	fNext = f;
 }
 
-void Func::clearNext()
+void Block::clearNext()
 {
 	this->fNext = NULL;
 }
 
-Func* Func::updatePrev(Conditional* c)
+Block* Block::updatePrev(Conditional* c)
 {
-	Func* tmp;
+	Block* tmp;
 	tmp = fPrev;
 	fPrev->clearNext();
 	this->fPrev = NULL;
@@ -87,12 +87,12 @@ Func* Func::updatePrev(Conditional* c)
 
 
 
-//Conditional * Func::getPrev()
+//Conditional * Block::getPrev()
 //{
 //	return cPrev;
 //}
 //
-//Conditional * Func::getNext()
+//Conditional * Block::getNext()
 //{
 //	return cNext;
 //}
