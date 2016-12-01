@@ -49,6 +49,7 @@ void Conditional::setNextIfTrue(Conditional *c)
 
 void Conditional::setNextIfFalse(Block * f)
 {
+//	f->setCParent(this);
 	if (cndNextIfFalse != NULL) {
 		std::cout << "warning: Conditional already has both block and condition assigned to next." << std::endl;
 	}
@@ -98,4 +99,41 @@ Vertex * Conditional::getVCondition()
 std::string Conditional::getSCondition()
 {
 	return sArg;
+}
+
+std::vector<Edge*> Conditional::connectVCnd(){
+
+	std::vector<Vertex*> vVec;
+	std::vector<Edge*> eVec;
+	Edge* newE;
+	//for (std::vector<Vertex*>::iterator it = )
+	if (blkNextIfTrue != NULL){
+		vVec = blkNextIfTrue->getNodes();
+		for (std::vector<Vertex*>::iterator it = vVec.begin(); it != vVec.end(); ++it) {
+			newE = new Edge(VARIABLE, this->sArg);
+			this->vCondition->addOutgoing(newE);
+			(*it)->addIncoming(newE);
+			
+			eVec.push_back(newE);
+		}
+	}
+	else if (cndNextIfTrue != NULL){
+		newE = new Edge(VARIABLE, this->sArg);
+		cndNextIfTrue->getVCondition()->addIncoming(newE);
+		vCondition->addOutgoing(newE);
+		eVec.push_back(newE);
+	}
+	
+	/////////////////////////////////////////////
+	if (blkNextIfFalse != NULL && blkNextIfFalse->query_IsElse() == true) {
+		vVec = blkNextIfFalse->getNodes();
+		for (std::vector<Vertex*>::iterator it = vVec.begin(); it != vVec.end(); ++it) {
+			newE = new Edge(VARIABLE, this->sArg);
+			this->vCondition->addOutgoing(newE);
+			(*it)->addIncoming(newE);
+			eVec.push_back(newE);
+		}
+	}
+	
+	return eVec;
 }

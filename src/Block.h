@@ -5,8 +5,10 @@
 #include "Vertex.h"
 #include "Edge.h"
 //#include "CDFGraph.h"
-#include "Conditional.h"
+//#include "Conditional.h"
+#include "State.h"
 
+class Conditional;
 class Block {
 
 public:
@@ -20,19 +22,40 @@ public:
 	void setNext(Block* blk);
 	void clearNext();
 	std::vector<Vertex*> getNodes();
-	Block* updatePrev(Conditional* c);
-	//Conditional* getPrev();
+	Block* convertToElse(Conditional* c);
+
+	
 	//Conditional* getNext();
 	Vertex* getFirst();
+	void setConverse(Block* blk);
+	Block* getConverse();
+	void setToElse();
+	void setToIf();
+	
+	bool query_IsElse();
+	bool query_IsIf();
+
+	bool checkForVertex(Vertex *v);
+
+	std::vector<State*> getStates();
+	void setCParent(Conditional* c);
+	Conditional* getCParent();
+	//bool checkForVertexInConverse();
 private:
 
 	std::vector<Vertex*> nodes;
 	std::vector<Edge*> edges;
 	
-	
+	bool isElse;
+	bool isIf;
+	//Vertex* vCond;
 	Conditional* cPrev;
 	Conditional* cNext;
+	//Conditional* cParent;
 	Block* blkPrev;
 	Block* blkNext;
+	Block* BlkConverse;
 };
+
 #endif
+

@@ -1,39 +1,17 @@
 #include "Block.h"
 
 
-
-
-//
-//Block::Func(std::string sArg, Block * inPrev)
-//{
-//	arg = sArg;
-//	this->fPrev = inPrev;
-//	fPrev->setNextFunction(this);
-//}
-//
-//void Block::setElseFunction(Block * inElse)
-//{
-//	fElse = inElse;
-//	fElse->setPrevFunction(this->fPrev);
-//}
-//
-//void Block::setNextFunction(Block * inNext)
-//{
-//	fNext = inNext;
-//}
-//
-//void Block::setPrevFunction(Block * inPrev)
-//{
-//	fPrev = inPrev;
-//
-//}
-
 Block::Block()
-{
+{	
+	cParent = NULL;
+	//vCond = NULL;
+	BlkConverse = NULL;
 	cPrev = NULL;
 	cNext = NULL;
 	blkPrev = NULL;
 	blkNext = NULL;
+	isIf = false;
+	isElse = false;
 }
 
 void Block::addVertex(Vertex * v)
@@ -88,10 +66,13 @@ std::vector<Vertex*> Block::getNodes()
 	return nodes;
 }
 
-Block* Block::updatePrev(Conditional* c)
-{
+Block* Block::convertToElse(Conditional* c)
+{	
+	isElse = true;
 	Block* tmp;
 	tmp = blkPrev;
+	this->BlkConverse = tmp;
+	tmp->setConverse(this);
 	blkPrev->clearNext();
 	this->blkPrev = NULL;
 	this->setPrev(c);
@@ -103,16 +84,105 @@ Vertex * Block::getFirst()
 	return nodes.front();
 }
 
+void Block::setConverse(Block * blk)
+{
+	BlkConverse = blk;
+}
+
+Block * Block::getConverse()
+{
+	return BlkConverse;
+}
+
+void Block::setToElse()
+{
+	if (isElse) {
+		std::cout << "ERROR THIS BLOCK IS AN ELSE AND AN IF WHAT GIVES(ELSE)" << std::endl;
+	}
+	isElse = true;
+}
+
+void Block::setToIf()
+{
+	if (isElse) {
+		std::cout << "ERROR THIS BLOCK IS AN ELSE AND AN IF WHAT GIVES (IF)" << std::endl;
+	}
+	isIf = true;
+
+}
+
+bool Block::query_IsElse()
+{
+	
+	return isElse;
+}
+
+bool Block::query_IsIf()
+{
+	return isIf;
+}
+
+bool Block::checkForVertex(Vertex* v) {
+
+	
+		if (std::find(nodes.begin(), nodes.end(), v) != nodes.end()) {
+			return true;
+		}
+		return false;
+}
+bool sortbySchedule2(Vertex *lhs, Vertex *rhs)
+{
+	bool val;
+	val = false;
+
+	if (lhs->query_Schedule() < rhs->query_Schedule()) {
+		val = true;
+	}
+
+	return val;
+
+}
+std::vector<State*> Block::getStates() {
+	State* currS;
+	int tCurr, tLast;
+	std::vector<State*> states;
+	std::vector<Vertex*> elseNodes;
+	Vertex* condV;
+
+	std::sort(nodes.begin(), nodes.end(), sortbySchedule2);
+	tLast = nodes.front()->query_Schedule();
+	currS = new State(tLast);
 
 
 
+	states.push_back(currS);
 
-//Conditional * Block::getPrev()
-//{
-//	return cPrev;
-//}
-//
-//Conditional * Block::getNext()
-//{
-//	return cNext;
-//}
+	if (!isIf && !isElse) {
+
+		for (std::vector<Vertex*>::iterator currV = nodes.begin(); currV != nodes.end(); ++currV) {
+			tCurr = (*currV)->query_Schedule();
+			if (tCurr == currS->getTime()) {
+				currS->addVertex(*currV);
+			}
+			else {
+				tCurr == currS->getTime();
+				currS = new State(tCurr);
+				currS->addVertex(*currV);
+				states.push_back(currS);
+			}
+		}
+	}
+	
+	return states;
+}
+
+void Block::setCParent(Conditional * c)
+{
+	//cParent = c;
+}
+
+Conditional * Block::getCParent()
+{
+	return cPrev;
+}
+

@@ -10,6 +10,7 @@ IOV::IOV(std::string sName, std::string sDataString, std::string strBitWidth)
 	name = sName;
 	dataType = sDataString;
 	sBitWidth = strBitWidth;
+	iBitWidth = std::stoi(strBitWidth);
 
 	return;
 }
@@ -33,6 +34,31 @@ std::string IOV::getDataType(void)
 void IOV::setType(string s)
 {
 	this->type = s;
+	std::string s_us = " ";//signed_unsigned
+	std::string sType_out = type + " ";
+	
+
+
+	if (dataType == "UInt") {
+		s_us = " unsigned ";
+	}
+	if (type == VARIABLE) {
+		//sType_out = " integer";
+		
+		lineOutput = "reg" + s_us + " [" + std::to_string(iBitWidth - 1) + ":0] " + name + ";";
+		
+	}
+	else if (type == INPUT || type == OUTPUT ) {
+		if (s == OUTPUT) {
+			s_us = "reg" + s_us;
+		}
+		if (iBitWidth > 1) {
+			lineOutput = sType_out  + s_us + " [" + std::to_string(iBitWidth - 1) + ":0] " + name + ";";// +std::endl;
+		}
+		else {
+			lineOutput = sType_out  + name + s_us + ";";// +std::endl;
+		}
+	}
 }
 
 std::string IOV::getType()
@@ -146,3 +172,9 @@ void IOV::generateIOV(std::vector<string>* strVector, std::vector<IOV>* inputs, 
 
 
 }
+
+std::string IOV::getOutputLine()
+{
+	return lineOutput;
+}
+

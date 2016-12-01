@@ -6,18 +6,21 @@
 #include "Edge.h"
 
 class Vertex {
-
+	friend class CDFGraph;
+	friend class Block;
 public:
 	Vertex();
-	Vertex(int n);
-	Vertex(int n, std::string strType);
-	static std::string checkValidOp(std::string s);
+	//Vertex(int n);
+	//Vertex(int n, std::string strType);
+	Vertex(int n, Resource* inRType);
+	static Resource* checkValidOp(std::string s);
 	void setString(std::string s);
 	std::string getString();
 	void setID(int n);
 	int getID();
-	void setType(string s);
-	std::string getType();
+
+	void setType(Resource *r);
+	Resource* getType();
 	void printVertex();
 	std::vector<Edge*> getOutgoing();
 	std::vector<Edge*> getIncoming();
@@ -27,14 +30,37 @@ public:
 	//void setVNumber(int n);
 	//int getVNumber();
 	void visit();
+	void resetVisit();
 	bool checkVisited();
 	//static void setLatency(int n);
-	static int latency;
+	
 	int getALAPTime();
 	void setALAPTime(int n);
-	
+
+	bool operator==(const Vertex & other) const;
+
+	bool operator!=(const Vertex & other) const;
+
+	//bool operator<(const Vertex & other) const;
+
+	//bool operator>(const Vertex & other) const;
+	//bool operator < (const Vertex &other)  {
+	//	// Compare the values, and return a bool result.
+	//	return  (ALAPtime < other.ALAPtime);
+	//}
+
+	//bool operator > (const Vertex &other)  {
+	//	// Compare the values, and return a bool result.
+	//	return  (ALAPtime > other.ALAPtime);
+	//}
+
+
+	void scheduleNode(int t);
+	int query_Schedule();
 private:
-	std::string sType;
+	int schedule;
+	//std::string sType;
+	Resource* rType;
 	std::string strNode;
 	int ID;
 	//int vNumber;
@@ -42,8 +68,11 @@ private:
 	std::vector<Edge*> outgoing;
 	bool visited;
 	int ALAPtime;
-	
+	static std::vector<Resource*> resources;
 
 
 };
+
+
+
 #endif

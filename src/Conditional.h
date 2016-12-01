@@ -5,7 +5,8 @@
 #include "main.h"
 #include "Vertex.h"
 #include "Parser.h"
-class Block;
+#include "Block.h"
+//class Block;
 class Conditional {
 
 public:
@@ -23,7 +24,9 @@ public:
 	void setVCondition(Vertex* v);
 	
 	Vertex* getVCondition();
+	std::vector<Edge*> connectVCnd();
 	std::string getSCondition();
+	
 private:
 	std::string sArg;
 	Block* blkPrev;
