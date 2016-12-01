@@ -20,19 +20,36 @@ public:
 	void setNext(Block* blk);
 	void clearNext();
 	std::vector<Vertex*> getNodes();
-	Block* updatePrev(Conditional* c);
-	//Conditional* getPrev();
+	Block* convertToElse(Conditional* c);
+
+	
 	//Conditional* getNext();
 	Vertex* getFirst();
+	void setConverse(Block* blk);
+	Block* getConverse();
+	void setToElse();
+	void setToIf();
+	
+	bool query_IsElse();
+	bool query_IsIf();
+
+	bool checkForVertex(Vertex *v);
+
+	//bool checkForVertexInConverse();
 private:
 
 	std::vector<Vertex*> nodes;
 	std::vector<Edge*> edges;
 	
-	
+	bool isElse;
+	bool isIf;
+
 	Conditional* cPrev;
 	Conditional* cNext;
 	Block* blkPrev;
 	Block* blkNext;
+	Block* BlkConverse;
 };
+
 #endif
+

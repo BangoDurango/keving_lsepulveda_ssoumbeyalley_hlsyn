@@ -1,13 +1,14 @@
 #include "Vertex.h"
-int Vertex::latency;
+
 std::vector<Resource*> Vertex::resources;
 
 
 Vertex::Vertex() {
 	rType = NULL;
+	schedule = 0;
 	visited = false;
 	strNode = "a";
-	ALAPtime = latency;
+	ALAPtime = 999;
 	//ALAPtime = CDFGraph::latency;
 }
 //Vertex::Vertex(int n)
@@ -30,7 +31,8 @@ Vertex::Vertex() {
 
 Vertex::Vertex(int n, Resource* inRType)
 {
-		ALAPtime = Vertex::latency;
+		//	ALAPtime = Vertex::latency;
+		ALAPtime = 999;
 		visited = false;
 		ID = n;
 		//sType = strType;
@@ -40,11 +42,14 @@ Vertex::Vertex(int n, Resource* inRType)
 Resource* Vertex::checkValidOp(std::string s)
 {
 	//std::vector<Resource*> rVec;
-	bool flag = false;
+	//bool flag = false;
 	for (std::vector<Resource*>::iterator it = resources.begin(); it != resources.end(); ++it){
 		//if ((*it)->)
-		for (std::vector<std::string>::iterator sIt = (*it)->ops.begin(); sIt != (*it)->ops.end(); ++it){
-			return *it;
+		for (std::vector<std::string>::iterator sIt = (*it)->ops.begin(); sIt != (*it)->ops.end(); ++sIt){
+			if (*sIt == s) {
+				return *it;
+			}
+			
 		}
 	}
 	return NULL;
@@ -169,6 +174,11 @@ void Vertex::addIncoming(Edge * e)
 
 void Vertex::addOutgoing(Edge * e)
 {	
+	//if (e->getID() == "t") {
+	//	//if (strNode == "OUTPUTS") {
+	//		std::cout << "stop";
+	//	//}
+	//}
 	e->setInput(this);
 
 	outgoing.push_back(e);
@@ -178,6 +188,7 @@ void Vertex::fixOutGoing() {
 	if (outgoing.front()->getOutput() == NULL) {
 		outgoing.erase(outgoing.begin());
 	}
+	
 }
 //void Vertex::setVNumber(int n)
 //{
@@ -213,3 +224,38 @@ void Vertex::setALAPTime(int n)
 {
 	ALAPtime = n;
 }
+
+
+void Vertex::scheduleNode(int t)
+{
+	schedule = t;
+}
+
+int Vertex::query_Schedule()
+{
+	return schedule;
+}
+
+bool Vertex::operator==(const Vertex &other) const {
+	  // Compare the values, and return a bool result.
+	if (strNode == other.strNode) {
+		if (ID == other.ID) {
+			return true;
+		}
+	}
+	return false;
+}
+bool Vertex::operator!=(const Vertex &other) const {
+	// Compare the values, and return a bool result.
+	return  *this == other;
+}
+
+//bool Vertex::operator < (const Vertex &other) const {
+//	// Compare the values, and return a bool result.
+//	return  (ALAPtime < other.ALAPtime);
+//}
+//
+//bool Vertex::operator > (const Vertex &other) const {
+//	// Compare the values, and return a bool result.
+//	return  (ALAPtime > other.ALAPtime);
+//}

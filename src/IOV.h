@@ -34,6 +34,10 @@ public:
 	//static bool CheckType(std::string);
 	static  void generateIOV(std::vector<string>* strVector, std::vector<IOV>* inputs, std::vector<IOV>* outputs, std::vector<IOV>* variables);
 
+	//bool operator==(const IOV & other) const;
+
+	//bool operator!=(const IOV & other) const;
+
 private:
 
 	//unsigned int bitWidth;

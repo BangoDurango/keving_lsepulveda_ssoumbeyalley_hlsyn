@@ -24,7 +24,7 @@ public:
 	void setVCondition(Vertex* v);
 	
 	Vertex* getVCondition();
-	void connectVCnd();
+	std::vector<Edge*> connectVCnd();
 	std::string getSCondition();
 private:
 	std::string sArg;

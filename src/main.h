@@ -13,7 +13,7 @@
 //#define LOGIC "logic"
 #define LT "<"
 #define GT ">"
-#define ET "++"
+#define ET "=="
 #define SL "<<"
 #define SR ">>"
 #define MUX "?"
@@ -32,7 +32,7 @@
 #include <fstream>
 #include<string>
 #include <vector>
-
+#include <algorithm>
 
 
 
@@ -47,4 +47,6 @@ struct Resource {
 	std::vector<std::string> ops;
 	int cnt;
 	int delay;
+	int inUse;
 };//ADDER_SUBTRACTOR, MULTIPLIER, LOGICAL;
+

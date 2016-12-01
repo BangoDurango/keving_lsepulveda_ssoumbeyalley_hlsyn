@@ -100,10 +100,10 @@ std::string Conditional::getSCondition()
 	return sArg;
 }
 
-void Conditional::connectVCnd(){
+std::vector<Edge*> Conditional::connectVCnd(){
 
 	std::vector<Vertex*> vVec;
-	
+	std::vector<Edge*> eVec;
 	Edge* newE;
 	//for (std::vector<Vertex*>::iterator it = )
 	if (blkNextIfTrue != NULL){
@@ -112,24 +112,27 @@ void Conditional::connectVCnd(){
 			newE = new Edge(VARIABLE, this->sArg);
 			this->vCondition->addOutgoing(newE);
 			(*it)->addIncoming(newE);
+			
+			eVec.push_back(newE);
 		}
 	}
 	else if (cndNextIfTrue != NULL){
 		newE = new Edge(VARIABLE, this->sArg);
 		cndNextIfTrue->getVCondition()->addIncoming(newE);
+		vCondition->addOutgoing(newE);
+		eVec.push_back(newE);
 	}
-
+	
 	/////////////////////////////////////////////
-	if (blkNextIfFalse != NULL){
+	if (blkNextIfFalse != NULL && blkNextIfFalse->query_IsElse() == true) {
 		vVec = blkNextIfFalse->getNodes();
 		for (std::vector<Vertex*>::iterator it = vVec.begin(); it != vVec.end(); ++it) {
 			newE = new Edge(VARIABLE, this->sArg);
 			this->vCondition->addOutgoing(newE);
 			(*it)->addIncoming(newE);
+			eVec.push_back(newE);
 		}
 	}
-	else if (cndNextIfFalse != NULL){
-		newE = new Edge(VARIABLE, this->sArg); 
-		cndNextIfFalse->getVCondition()->addIncoming(newE);
-	}
+	
+	return eVec;
 }

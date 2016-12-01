@@ -34,7 +34,7 @@ public:
 	void addConditionalVertices();
 	Vertex* parseConditional(string s);
 //	Conditional* parseConditional(string s);
-	std::vector<Edge*> getEdgesByID(string s);
+	std::vector<Vertex*> getVerticesByEdgeID(string s);
 	std::vector<Vertex*> getVertices();
 	void DFS(CDFGraph* g, Vertex* v);
 	void ALAP(CDFGraph* g, Vertex* v, int time);
@@ -43,12 +43,19 @@ public:
 
 	void LIST_R(int n);
 
+	void resetRCounts();
+
+	bool checkInputorVariable(std::string s);
+
+	bool checkOutputorVariable(std::string s);
+
 	void LIST_R(CDFGraph * g, Vertex * v);
 
 private:
 	std::vector<IOV> inputs;
 	std::vector<IOV> outputs;
 	std::vector<IOV> variables;
+
 	Vertex* vINOP;
 	Vertex* vONOP;
 	Resource ONOP;
@@ -73,7 +80,7 @@ private:
 	static Resource MULTIPLIER;
 	static Resource LOGICAL;
 	static Resource IF_STATEMENT;
-	
+	std::vector<Resource*> rVec;
 	int latency;
 };
 

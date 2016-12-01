@@ -7,6 +7,7 @@
 
 class Vertex {
 	friend class CDFGraph;
+	friend class Block;
 public:
 	Vertex();
 	//Vertex(int n);
@@ -17,11 +18,9 @@ public:
 	std::string getString();
 	void setID(int n);
 	int getID();
-	//void setType(string s);
-	//std::string getType();
+
 	void setType(Resource *r);
 	Resource* getType();
-
 	void printVertex();
 	std::vector<Edge*> getOutgoing();
 	std::vector<Edge*> getIncoming();
@@ -33,11 +32,32 @@ public:
 	void visit();
 	bool checkVisited();
 	//static void setLatency(int n);
-	static int latency;
+	
 	int getALAPTime();
 	void setALAPTime(int n);
-	
+
+	bool operator==(const Vertex & other) const;
+
+	bool operator!=(const Vertex & other) const;
+
+	//bool operator<(const Vertex & other) const;
+
+	//bool operator>(const Vertex & other) const;
+	//bool operator < (const Vertex &other)  {
+	//	// Compare the values, and return a bool result.
+	//	return  (ALAPtime < other.ALAPtime);
+	//}
+
+	//bool operator > (const Vertex &other)  {
+	//	// Compare the values, and return a bool result.
+	//	return  (ALAPtime > other.ALAPtime);
+	//}
+
+
+	void scheduleNode(int t);
+	int query_Schedule();
 private:
+	int schedule;
 	//std::string sType;
 	Resource* rType;
 	std::string strNode;
@@ -51,4 +71,7 @@ private:
 
 
 };
+
+
+
 #endif
