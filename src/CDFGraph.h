@@ -4,12 +4,11 @@
 
 #include "main.h"
 #include "Parser.h"
-
-
+#include <math.h>
+#include "State.h"
 #include "IOV.h"
 #include "Edge.h"
 #include "Vertex.h"
-
 #include "ControlGraph.h"
 //class Vertex;
 //class Edge;
@@ -49,6 +48,17 @@ public:
 
 	bool checkOutputorVariable(std::string s);
 
+	int calculateStates();
+
+	void generateVerilogFile(char * outFileStr);
+
+	//std::vector<State*> getStatesForBlock(Block * currB);
+
+	void resetVertexVisits();
+
+	void hookUpCondStates();
+
+
 	void LIST_R(CDFGraph * g, Vertex * v);
 
 private:
@@ -63,7 +73,7 @@ private:
 	std::vector<Vertex*> Vertices;
 	std::vector<Edge*> Edges;
 	std::vector<string> FileStrings;
-
+	std::vector<State*> vStates;
 	//int AddSubCnt;
 	//int MultCnt;
 	//int LogicCnt;
@@ -82,6 +92,8 @@ private:
 	static Resource IF_STATEMENT;
 	std::vector<Resource*> rVec;
 	int latency;
+	int maxTime;
+	int minTime;
 };
 
 

@@ -49,6 +49,7 @@ void Conditional::setNextIfTrue(Conditional *c)
 
 void Conditional::setNextIfFalse(Block * f)
 {
+//	f->setCParent(this);
 	if (cndNextIfFalse != NULL) {
 		std::cout << "warning: Conditional already has both block and condition assigned to next." << std::endl;
 	}

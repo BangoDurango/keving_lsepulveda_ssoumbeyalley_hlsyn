@@ -12,10 +12,18 @@
 
 int main (int argc, char* argv[]){
 	//string path = "C:\\Users\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\assignment3_testfiles_full\\if tests\\";
-	string path = "E:\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\testfiles\\if_tests\\";
-	string inFileString = "test_if2.c";
+	string path = "E:\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\testfiles\\";
+	//string path = "E:\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\testfiles\\standard tests\\";
+	string inFileString = "if_tests\\test_if1.c";
 	char* inCStr = new char[(path + inFileString).length() - 1];
 	strcpy(inCStr, (path + inFileString).c_str());
+
+	
+	std::string outFileString = "\\output\\out1.v";
+
+	char* outCStr = new char[(path  + outFileString).length() - 1];
+	strcpy(outCStr, (path  + outFileString).c_str());
+
 	int lat = 10;
 
 	if (argc != 4) {
@@ -73,12 +81,12 @@ int main (int argc, char* argv[]){
 	//std::cout << "......................................" << std::endl << std::endl;
 	//g1->ALAP(lat);
 	g1->LIST_R(lat);
-	std::vector<Vertex*> Verts = g1->getVertices();
-
+	//std::vector<Vertex*> Verts = g1->getVertices();
+	g1->generateVerilogFile(outCStr);
 	/*for (std::vector<Vertex*>::iterator it = Verts.begin(); it != Verts.end(); ++it) {
 		std::cout << left << "Node: [" << (*it)->getString() << "]\t\t" << right << "ALAP Time:" << (*it)->getALAPTime() << std::endl;
 	}*/
-	std::cout << "......................................" << std::endl << std::endl;
+	//std::cout << "......................................" << std::endl << std::endl;
 	return 0;
 }
 

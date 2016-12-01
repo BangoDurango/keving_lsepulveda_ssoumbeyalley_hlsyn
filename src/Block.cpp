@@ -3,6 +3,8 @@
 
 Block::Block()
 {	
+	cParent = NULL;
+	//vCond = NULL;
 	BlkConverse = NULL;
 	cPrev = NULL;
 	cNext = NULL;
@@ -128,47 +130,59 @@ bool Block::checkForVertex(Vertex* v) {
 		}
 		return false;
 }
-//
-//bool Block::checkForVertexInConverse()
-//{	
-//	std::vector<Edge*> eVec;
-//	std::vector<Vertex*> vVec;
-//	Vertex* vTMP1;
-////	Vertex* vTMP2;
-//
-//	if (isIf || isElse) {
-//
-//		//vVec = BlkConverse->getNodes();
-//
-//		for (std::vector<Vertex*>::iterator vIt = nodes.begin(); vIt != nodes.end(); ++vIt) {
-//			//for all of this blocks nodes....
-//			vTMP1 = (*vIt);
-//
-//			eVec = vTMP1->getIncoming();//if this guy has any edges leading to the converse block
-//			for (std::vector<Edge*>::iterator eIt = eVec.begin(); eIt != eVec.end(); ++eIt) {
-//				if (BlkConverse->checkForVertex((*eIt)->getInput())) {
-//					(*vIt)->outgoing.erase(eIt);
-//
-//					edges.erase(eIt);
-//				}
-//
-//			}
-//		}
-//
-//	}
-//	return false;
-//}
+bool sortbySchedule2(Vertex *lhs, Vertex *rhs)
+{
+	bool val;
+	val = false;
+
+	if (lhs->query_Schedule() < rhs->query_Schedule()) {
+		val = true;
+	}
+
+	return val;
+
+}
+std::vector<State*> Block::getStates() {
+	State* currS;
+	int tCurr, tLast;
+	std::vector<State*> states;
+	std::vector<Vertex*> elseNodes;
+	Vertex* condV;
+
+	std::sort(nodes.begin(), nodes.end(), sortbySchedule2);
+	tLast = nodes.front()->query_Schedule();
+	currS = new State(tLast);
 
 
 
+	states.push_back(currS);
 
+	if (!isIf && !isElse) {
 
-//Conditional * Block::getPrev()
-//{
-//	return cPrev;
-//}
-//
-//Conditional * Block::getNext()
-//{
-//	return cNext;
-//}
+		for (std::vector<Vertex*>::iterator currV = nodes.begin(); currV != nodes.end(); ++currV) {
+			tCurr = (*currV)->query_Schedule();
+			if (tCurr == currS->getTime()) {
+				currS->addVertex(*currV);
+			}
+			else {
+				tCurr == currS->getTime();
+				currS = new State(tCurr);
+				currS->addVertex(*currV);
+				states.push_back(currS);
+			}
+		}
+	}
+	
+	return states;
+}
+
+void Block::setCParent(Conditional * c)
+{
+	//cParent = c;
+}
+
+Conditional * Block::getCParent()
+{
+	return cPrev;
+}
+

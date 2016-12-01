@@ -6,6 +6,8 @@
 #include "Edge.h"
 //#include "CDFGraph.h"
 //#include "Conditional.h"
+#include "State.h"
+
 class Conditional;
 class Block {
 
@@ -35,6 +37,9 @@ public:
 
 	bool checkForVertex(Vertex *v);
 
+	std::vector<State*> getStates();
+	void setCParent(Conditional* c);
+	Conditional* getCParent();
 	//bool checkForVertexInConverse();
 private:
 
@@ -43,9 +48,10 @@ private:
 	
 	bool isElse;
 	bool isIf;
-
+	//Vertex* vCond;
 	Conditional* cPrev;
 	Conditional* cNext;
+	//Conditional* cParent;
 	Block* blkPrev;
 	Block* blkNext;
 	Block* BlkConverse;

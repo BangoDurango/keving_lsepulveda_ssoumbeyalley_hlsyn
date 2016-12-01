@@ -26,6 +26,7 @@ public:
 	Vertex* getVCondition();
 	std::vector<Edge*> connectVCnd();
 	std::string getSCondition();
+	
 private:
 	std::string sArg;
 	Block* blkPrev;

@@ -30,6 +30,7 @@ public:
 	//void setVNumber(int n);
 	//int getVNumber();
 	void visit();
+	void resetVisit();
 	bool checkVisited();
 	//static void setLatency(int n);
 	

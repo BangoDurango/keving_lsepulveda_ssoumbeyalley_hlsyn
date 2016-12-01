@@ -124,6 +124,7 @@ void CDFGraph::parseOperations()
 		std::cout << "No File Strings Loaded to Graph" << std::endl;
 		exit(1);
 	}
+
 	for (std::vector<string>::iterator it = FileStrings.begin(); it != FileStrings.end(); ++it) {
 	
 		if (std::size_t found = it->find(IF) != std::string::npos) {
@@ -325,7 +326,9 @@ Vertex* CDFGraph::parseConditional(string s) {
 	//nID = IF_STATEMENT.cnt;
 	newV = new Vertex();
 	newV->setType(&IF_STATEMENT);
-	newV->setString(s);
+	std::string sName;
+	sName = tok.at(0) + " " + tok.at(1) + " " + tok.at(2) + " " + tok.at(3);
+	newV->setString(sName);
 
 	CDFGraph::parseInput(tok.at(2), newV);
 	CDFGraph::parseOutput(tok.at(2), newV);
@@ -537,7 +540,7 @@ void CDFGraph::ALAP(int n)
 void CDFGraph::LIST_R(CDFGraph * g, Vertex * v) {
 	//g->LIST_R()
 }
-bool sortOperator(Vertex *lhs, Vertex *rhs)
+bool sortbyALAP(Vertex *lhs, Vertex *rhs)
 {
 	bool val;
 	val = false;
@@ -547,6 +550,30 @@ bool sortOperator(Vertex *lhs, Vertex *rhs)
 	}
 
 		return val;
+
+}
+bool sortbySchedule(Vertex *lhs, Vertex *rhs)
+{
+	bool val;
+	val = false;
+
+	if (lhs->query_Schedule() < rhs->query_Schedule()) {
+		val = true;
+	}
+
+	return val;
+
+}
+bool stateSorter(State *lhs, State *rhs)
+{
+	bool val;
+	val = false;
+
+	if (lhs->getTime() < rhs->getTime()) {
+		val = true;
+	}
+
+	return val;
 
 }
 void CDFGraph::LIST_R(int n) {
@@ -568,7 +595,7 @@ void CDFGraph::LIST_R(int n) {
 
 
 	do { // while (allV.size() > 0);
-		std::sort(allV.begin(), allV.end(), sortOperator);//sorts by ALAP time small->large
+		std::sort(allV.begin(), allV.end(), sortbyALAP);//sorts by ALAP time small->large
 		bool schFlag = false;
 		CDFGraph::resetRCounts();
 		//Each loop here is for a different time slot, so start by setting the count of each resource to zero
@@ -607,9 +634,8 @@ void CDFGraph::LIST_R(int n) {
 		}
 		t++;
 	} while (allV.size() > 0);
-	for (std::vector<Vertex*>::iterator it = Vertices.begin(); it != Vertices.end(); ++it) {
-		std::cout << left << "Node: [" << (*it)->getString() << "]\t\t" << right << "ALAP Time:" << (*it)->getALAPTime() << "\tScheduled Time: " << (*it)->query_Schedule() << std::endl;
-	}
+
+	//maxTime = t;
 }
 
 
@@ -648,4 +674,144 @@ bool CDFGraph::checkOutputorVariable(std::string s) {
 	}
 	return false;
 
+}
+int CDFGraph::calculateStates() {
+	
+	std::vector<int> nums;
+	int ii;
+	int min = 999;
+	int max = -1;
+
+	for (std::vector<Vertex*>::iterator it = Vertices.begin(); it != Vertices.end(); ++it) {
+		ii = (*it)->query_Schedule();
+		if (!(std::find(nums.begin(), nums.end(), ii) != nums.end()) ) {
+			nums.push_back(ii);
+		}
+		if (ii < min) min = ii;
+		if (ii > max) max = ii;
+	}
+
+	int stateRegWidth = ceil(log2(nums.size()));
+	maxTime = max;
+	minTime = min;
+	return stateRegWidth;
+}
+
+void CDFGraph::generateVerilogFile(char* outFileStr) {
+
+	int stateRegWidth = CDFGraph::calculateStates();
+
+	std::vector<string> outLines;
+	std::string sLine;
+	std::stringstream ss;
+	
+	std::sort(Vertices.begin(), Vertices.end(), sortbySchedule);
+	for (std::vector<Vertex*>::iterator it = Vertices.begin(); it != Vertices.end(); ++it) {
+		std::cout << left << "Node: [" << (*it)->getString() << "]\t\t" << right << "ALAP Time:" << (*it)->getALAPTime() << "\tScheduled Time: " << (*it)->query_Schedule() << std::endl;
+	}
+
+	std::ofstream outFile(outFileStr, std::ofstream::out);
+
+	if (outFile.is_open() && outFile.good()) {
+		//std::cout << "File Opened!" << std::endl;
+	}
+	else {
+		std::cout << "Unable to open output file." << std::endl;
+		//return std::vector<std::string>();
+		exit(1);
+	}
+
+//	int bw = -1;
+
+	std::string tp = "";
+	std::string nm = "";
+	std::string argStr;
+
+	bool sgn;
+	sgn = false;
+	//string debugs;
+	ss << "clk, rst, ";
+
+	for (std::vector<IOV>::iterator it = inputs.begin(); it != inputs.end(); ++it) {
+		tp = it->getType();
+		nm = it->getName();
+
+			ss << nm << ", ";
+			//if (it + 1 != pins.end())ss << ", ";
+	
+	}
+	for (std::vector<IOV>::iterator it = outputs.begin(); it != outputs.end(); ++it) {
+		tp = it->getType();
+		nm = it->getName();
+
+			ss << nm << ", ";
+			//if (it + 1 != pins.end())ss << ", ";
+		
+	}
+	//for (std::vector<IOV>::iterator it = variables.begin(); it != variables.end(); ++it) {
+	//	tp = it->getType();
+	//	nm = it->getName();
+
+	//		ss << nm << ", ";
+	//		//if (it + 1 != pins.end())ss << ", ";
+	//}
+	argStr = ss.str();//argstr is the list of inputs in the function signature
+
+	argStr = argStr.substr(0, argStr.length() - 2); //get rid of extra comma
+	outFile << "`timescale 1ns / 1ps" << std::endl;
+
+	outFile << "module HLSM (" << argStr << ");" << std::endl << std::endl;
+
+	for (std::vector<IOV>::iterator it = inputs.begin(); it != inputs.end(); ++it) {//declaring inputs etc
+		outFile << it->getOutputLine() << std::endl;
+	}
+
+	outFile << "input clk, rst;" << std::endl;
+
+	for (std::vector<IOV>::iterator it = outputs.begin(); it != outputs.end(); ++it) {//declaring inputs etc
+		outFile << it->getOutputLine() << std::endl;
+	}
+
+	for (std::vector<IOV>::iterator it = variables.begin(); it != variables.end(); ++it) {//declaring inputs etc
+		outFile << it->getOutputLine() << std::endl;
+	}
+
+	//Declare state reg:
+	outFile << "reg [" << std::to_string(stateRegWidth - 1) << ":0] state;" << std::endl;
+
+////////////////////////////////////////////////////////////////ports declared!!
+	int time = 1;
+	int currI;
+	bool flag = true;
+
+	//std::vector<Vertex*> tmpV;
+	//Block* currB;
+	//currB = StartBlock;
+	string debugLine;
+	
+	std::string tabs = "\t\t\t\t\t";
+	outFile <<  std::endl << "always @(state)" << std::endl;
+	outFile << "\tbegin" << std::endl;
+	//outFile << "\t\t if (rst)" << std::endl << "\t\t\tstate = 1;" << std::endl;
+	//outFile << "\t\telse" << std::endl;
+	outFile << "\t\t\tcase (state)" << std::endl;
+
+	//iterate throguh gControlGraph and 
+
+	outFile << "\t\t\t\t" << std::to_string(1) << ": begin" << std::endl;
+	currI = minTime;
+	
+	outFile << "\t\t\t\tend" << std::endl;
+	outFile << "\t\t\tendcase" << std::endl;
+	outFile << "\t\tend" << std::endl;
+	//outFile << "\tend" << std::endl;
+	outFile << "endmodule" << std::endl;
+	outFile.close();
+}
+
+
+void CDFGraph::resetVertexVisits() {
+	for (std::vector<Vertex*>::iterator currV = Vertices.begin(); currV != Vertices.end(); ++currV) {
+		(*currV)->resetVisit();
+	}
 }

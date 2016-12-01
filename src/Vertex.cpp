@@ -205,6 +205,11 @@ void Vertex::visit()
 	this->visited = true;
 }
 
+void Vertex::resetVisit()
+{
+	this->visited = false;
+}
+
 bool Vertex::checkVisited()
 {
 	return visited;
