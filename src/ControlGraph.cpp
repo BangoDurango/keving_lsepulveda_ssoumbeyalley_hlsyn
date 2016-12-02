@@ -78,10 +78,23 @@ std::vector<State*> ControlGraph::callGS() {
 		allStates = generateStates(StartConditional);
 	}
 
-
-	return allStates;
+	objStates = allStates;
+	ControlGraph::Bandaid_No1();
+	return objStates;
 }
-
+void  ControlGraph::Bandaid_No1() {
+	std::string s;
+	//I AM WRITING THIS PROGRAM ALONE AND I HAVE SPENT WAY TOO MUCH TIME ON IT SO I DON'T CARE IF THIS IS A GOOD SOLUTION. I JUST WANT TO GRADUATE AND NEVER DO A GROUP PROJECT AGAIN UNLESS I'M GETTING PAID.
+	for (std::vector<State*>::iterator sIt = objStates.begin() + 1; sIt != objStates.end() - 1;) {
+		s = (*sIt)->getNodes().front()->getString();
+		if (s == "INPUTS" || s == "OUTPUTS") {
+			sIt = objStates.erase(sIt);
+		}
+		else {
+			sIt++;
+		}
+	}
+}
 std::vector<State*> ControlGraph::generateStates(Block* b) {
 	State* newS;
 	Block* currB;

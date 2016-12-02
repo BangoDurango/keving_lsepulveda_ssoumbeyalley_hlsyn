@@ -149,7 +149,7 @@ std::vector<State*> Block::getStates() {
 	State* nextS;
 	//int tCurr, tLast;
 	int sTime;
-
+	stringstream ss;
 	if (states.size() > 0) {
 		return states;
 	}
@@ -159,7 +159,6 @@ std::vector<State*> Block::getStates() {
 
 	std::sort(nodes.begin(), nodes.end(), sortbySchedule2);
 
-	
 
 	std::string sName;
 
@@ -174,12 +173,17 @@ std::vector<State*> Block::getStates() {
 	}
 //	sName = "blk_";
 	sTime = nodes.front()->query_Schedule();
-	currS = new State(sTime, sName + std::to_string(State::getStateCount()) + "_");
+	ss << sName << State::getStateCount() << "_";
+	currS = new State(sTime, ss.str());
+	ss.clear();
 	//currS->addVertex(nodes.front());
 	states.push_back(currS);
 	State* cState;
 	
 	for (std::vector<Vertex*>::iterator currV = nodes.begin(); currV != nodes.end(); ++currV) {
+		/*if ((*currV)->getString() == "INPUTS" || (*currV)->getString() == "OUTPUTS") {
+			continue;
+		}*/
 		sTime = (*currV)->query_Schedule();
 
 		if (sTime == currS->getTime()) {
@@ -190,7 +194,9 @@ std::vector<State*> Block::getStates() {
 		else {
 
 			sTime = (*currV)->query_Schedule();
-			nextS = new State(sTime, sName + std::to_string(State::getStateCount()) + "_");
+			ss << sName << State::getStateCount() << "_";
+			nextS = new State(sTime,ss.str());
+			ss.clear();
 			nextS->addVertex(*currV);
 			currS->setNextIfTrue(nextS);
 			currS = nextS;

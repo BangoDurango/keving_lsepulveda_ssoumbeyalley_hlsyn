@@ -11,7 +11,7 @@ public:
 	State();
 	State(int t, std::string s);
 	void addVertex(Vertex* v);
-	static State* combineIfElseStates(State* s1, State* s2, Vertex* vCond);
+	//static State* combineIfElseStates(State* s1, State* s2, Vertex* vCond);
 	std::vector<Vertex*> getNodes();
 	int getTime();
 	std::vector<string> getVerilog();

@@ -15,7 +15,7 @@ int main (int argc, char* argv[]){
 	string path = "E:\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\testfiles\\";
 	//string path = "E:\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\testfiles\\standard tests\\";
 	//string path = "C:\\Users\\keving\\Desktop\\keving_lsepulveda_ssoumbeyalley_hlsyn\\assignment3_testfiles_full\\";
-	string inFileString = "if_tests\\test_if3.c";
+	string inFileString = "if_tests\\test_if4.c";
 	char* inCStr = new char[(path + inFileString).length() - 1];
 	strcpy(inCStr, (path + inFileString).c_str());
 

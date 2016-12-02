@@ -8,7 +8,10 @@ State::State()
 
 State::State(int t, std::string s)
 {
-	sName = s + std::to_string(t);
+	stringstream ss;
+	ss << s << t;
+	sName = ss.str();
+	ss.clear();
 	time = t;
 	sCount++;
 }
@@ -17,19 +20,7 @@ void State::addVertex(Vertex * v)
 {
 	nodes.push_back(v);
 }
-State* State::combineIfElseStates(State * s1, State * s2, Vertex * vCond)
-{/*
-	
-	std::vector<Vertex*> n1;
-	std::vector<Vertex*> n2;
-	int time = s1->getTime();
-	State* newS = new State(time );
-	if (time == s2->getTime ) {
-		n1 = s1->getNodes();
-		n1.insert()
-	}*/
-	return nullptr;
-}
+
 std::vector<Vertex*> State::getNodes()
 {
 	return nodes;
@@ -45,23 +36,47 @@ std::vector<string> State::getVerilog()
 	std::vector<string> vLines;
 	std::string s;
 
-	s = this->sName + ": " + "begin\n";
+	s = this->sName + ": " + "\nbegin\n";
 	vLines.push_back(s);
 
 	std::string sT, sF;
+	string stemp;
+	this->getLines();
 
 	for (std::vector<string>::iterator it = slines.begin(); it != slines.end(); ++it) {
 		
-		vLines.push_back(*it);
+		if (!(*it).find("if")) {
+			vLines.push_back(*it + "\n");
+		}
+		else {
+			vLines.push_back(*it + ";\n");
+		}
+		
 
-		if (sName.substr(0) == "C") {
+		if (sName.at(0) == 'C') {
+			if (this->nextIfTrue != NULL) {
+				sT = "state = " + this->nextIfTrue->sName + ";\n";
+				vLines.push_back(sT);
+			}
+			if (this->nextIfFalse != NULL) {
+				stemp = this->nextIfFalse->getName();
+				if (stemp.at(0) == 'E') {
+					vLines.push_back("Else");
+					sF = "\nstate = " + this->nextIfFalse->sName + ";\n";
+					vLines.push_back(sF);
+				}
 			
-			sT = "state = " + this->nextIfTrue->sName + ";\n";
-
+			}
+		}
+		else {
+			if (this->nextIfTrue != NULL) {
+				s = "\nstate = " + this->nextIfTrue->sName + ";\n";
+				vLines.push_back(s);
+			}
 		}
 	}
-
-	s = "end\n";
+	
+	s = "end\n\n";
 	vLines.push_back(s);
 
 	return vLines;
@@ -77,9 +92,9 @@ std::vector<string> State::getStrings()
 	std::vector<string> tmpS;
 
 	for (std::vector<Vertex*>::iterator vIt = nodes.begin(); vIt != nodes.end(); ++vIt) {
-		tmpS.push_back((*vIt)->getString());
+		tmpS.push_back((*vIt)->getString() + "\n");
 	}
-
+	slines = tmpS;
 	return tmpS;
 }
 

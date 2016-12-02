@@ -10,7 +10,12 @@ IOV::IOV(std::string sName, std::string sDataString, std::string strBitWidth)
 	name = sName;
 	dataType = sDataString;
 	sBitWidth = strBitWidth;
-	iBitWidth = std::stoi(strBitWidth);
+
+	stringstream ss;
+	ss.str(strBitWidth);
+	ss >> iBitWidth;
+
+	//iBitWidth = std::stoi(strBitWidth);
 
 	return;
 }
@@ -37,23 +42,25 @@ void IOV::setType(string s)
 	std::string s_us = " ";//signed_unsigned
 	std::string sType_out = type + " ";
 	
-
+	stringstream ss;
 
 	if (dataType == "UInt") {
 		s_us = " unsigned ";
 	}
 	if (type == VARIABLE) {
 		//sType_out = " integer";
-		
-		lineOutput = "reg" + s_us + " [" + std::to_string(iBitWidth - 1) + ":0] " + name + ";";
-		
+		ss << "reg" << s_us << " [" << (iBitWidth - 1) << ":0] " << name << ";";
+		lineOutput = ss.str();
+		ss.clear();
 	}
 	else if (type == INPUT || type == OUTPUT ) {
 		if (s == OUTPUT) {
 			s_us = "reg" + s_us;
 		}
 		if (iBitWidth > 1) {
-			lineOutput = sType_out  + s_us + " [" + std::to_string(iBitWidth - 1) + ":0] " + name + ";";// +std::endl;
+			ss << sType_out << s_us << " [" << (iBitWidth - 1) << ":0] " << name << ";";
+			lineOutput = ss.str();// +std::endl;
+			ss.clear();
 		}
 		else {
 			lineOutput = sType_out  + name + s_us + ";";// +std::endl;
@@ -90,13 +97,13 @@ void IOV::generateIOV(std::vector<string>* strVector, std::vector<IOV>* inputs, 
 		//return false;
 	}
 
-	for (std::vector<string>::iterator it = strVector->begin(); it != strVector->end(); ++it) {
+	for (std::vector<string>::iterator it = strVector->begin(); it != strVector->end();) {
 		//For each string in the vector which the file was loaded in to
 		tok = Parser::splitByWhitespace(*it);//break the line up by whitespace
 
 		if (tok.size() == 0) continue;
 		//sType = tok.at(0);//the first token should be input, output, wire etc
-		string dbg = tok.at(0);
+		//string dbg = tok.at(0);
 		if (tok.at(0) == "input" || tok.at(0) == "output" || tok.at(0) == "variable") {
 			//newCon = new IOV("input");
 			
@@ -133,9 +140,9 @@ void IOV::generateIOV(std::vector<string>* strVector, std::vector<IOV>* inputs, 
 			}
 
 
-			for (std::vector<string>::iterator it = sNames.begin(); it != sNames.end(); ++it) {
+			for (std::vector<string>::iterator sit = sNames.begin(); sit != sNames.end(); ++sit) {
 				//loop through the vector of pin names, and make a new V_Pin object for it
-				IOV *newIOV = new IOV(*it, sType, bitWidth);
+				IOV *newIOV = new IOV(*sit, sType, bitWidth);
 
 				if (tok.at(0) == INPUT) {
 					newIOV->setType(INPUT);
@@ -152,14 +159,18 @@ void IOV::generateIOV(std::vector<string>* strVector, std::vector<IOV>* inputs, 
 					if (variables->size() == 0) variables->push_back(*newIOV);//If the vector is empty, just put this in there.
 					else variables->push_back(*newIOV);// pins.insert(pins.begin(), newPin);//They should load in order on their own
 				}
+				//pinLinesEndHere = sit;
 			}
 			sNames.clear();//After making all of the pins with this type and bitwidth, empty the name vector and move to the next type
-			pinLinesEndHere = it;
+			it = strVector->erase(it);
 		}
 
+		else {
+			++it;
+		}
 
 	}
-	strVector->erase(strVector->begin(), pinLinesEndHere + 1);
+	//strVector->erase(strVector->begin(), pinLinesEndHere + 1);
 
 	//for (std::vector<string>::iterator it = strVector->begin(); it != pinLinesEndHere + 1; ++it) {
 	//	strVector->erase()

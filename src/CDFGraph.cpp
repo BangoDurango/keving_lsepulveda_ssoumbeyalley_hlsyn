@@ -120,6 +120,7 @@ void CDFGraph::parseOperations()
 	Block* newBlk;
 	Block* tempF = NULL;
 	Block* lastBlock;
+	bool opsFound = false;
 
 	if (this->FileStrings.size() == 0) {
 		std::cout << "No File Strings Loaded to Graph" << std::endl;
@@ -127,7 +128,7 @@ void CDFGraph::parseOperations()
 	}
 	bool first = true;
 	for (std::vector<string>::iterator it = FileStrings.begin(); it != FileStrings.end(); ++it) {
-	
+		
 		if (std::size_t found = it->find(IF) != std::string::npos) {
 			newC = new Conditional(*it);
 			tempV = parseConditional(*it);
@@ -159,22 +160,23 @@ void CDFGraph::parseOperations()
 			//currBlk->setToElse();
 		}
 		else if (std::size_t found = it->find("}") != std::string::npos) {
-
-			newBlk = new Block();
-			currBlk->setNext(newBlk);
-			newBlk->setPrev(currBlk);	
-			lastBlock = currBlk;
-			currBlk = newBlk;
-			gControlGraph.addBlock(currBlk);
-			if (tempF != NULL) {
-				tempF->setNext(newBlk);
-				tempF = NULL;
+			if (opsFound) {
+				newBlk = new Block();
+				currBlk->setNext(newBlk);
+				newBlk->setPrev(currBlk);
+				lastBlock = currBlk;
+				currBlk = newBlk;
+				gControlGraph.addBlock(currBlk);
+				if (tempF != NULL) {
+					tempF->setNext(newBlk);
+					tempF = NULL;
+				}
+				else {
+					CondVec.back()->setNextIfFalse(currBlk);
+					CondVec.pop_back();
+				}
+				opsFound = false;
 			}
-			else {
-				CondVec.back()->setNextIfFalse(currBlk);
-				CondVec.pop_back();
-			}
-			
 			
 			_last = FUNCTION;
 
@@ -189,18 +191,18 @@ void CDFGraph::parseOperations()
 				_last = FUNCTION;
 			}
 			parseOperation(*it);
-
+			opsFound = true;
 		}
 		first = false;
 	}
 	//if (currBlk->getNodes().size() == 0) {
 	//	//currBlk = lastBlock;
 	//	//gControlGraph.getBlocks().erase(gControlGraph.getBlocks().end());
-	currBlk = gControlGraph.dropLast();
+	//currBlk = gControlGraph.dropLast();
 	//}
 	//currBlk = new Block;
 		
-	
+	currBlk->addVertex(vONOP);
 	//currC->setNextIfFalse(currBlk);
 	CDFGraph::addConditionalVertices();
 	for (std::vector<Edge*>::iterator it = Edges.begin(); it != Edges.end(); ++it) {
@@ -209,8 +211,8 @@ void CDFGraph::parseOperations()
 		}
 	}
 
-	currBlk->addVertex(vONOP);
-	currBlk->clearNext();
+
+	//currBlk->clearNext();
 }
 
 void CDFGraph::addConditionalVertices() {
@@ -663,6 +665,11 @@ bool CDFGraph::checkInputorVariable(std::string s) {
 
 bool CDFGraph::checkOutputorVariable(std::string s) {
 	IOV* tIOV = getIOVbyName(s);
+	for (std::vector<IOV>::iterator it = inputs.begin(); it != inputs.end(); ++it) {
+		if (it->getName() == s) {
+			return true;
+		}
+	}
 	for (std::vector<IOV>::iterator it = outputs.begin(); it != outputs.end(); ++it) {
 		if (it->getName() == s) {
 			return true;
@@ -707,9 +714,9 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	std::stringstream ss;
 	
 	std::sort(Vertices.begin(), Vertices.end(), sortbySchedule);
-	for (std::vector<Vertex*>::iterator it = Vertices.begin(); it != Vertices.end(); ++it) {
-		std::cout << left << "Node: [" << (*it)->getString() << "]\t\t" << right << "ALAP Time:" << (*it)->getALAPTime() << "\tScheduled Time: " << (*it)->query_Schedule() << std::endl;
-	}
+	//for (std::vector<Vertex*>::iterator it = Vertices.begin(); it != Vertices.end(); ++it) {
+	//	std::cout << left << "Node: [" << (*it)->getString() << "]\t\t" << right << "ALAP Time:" << (*it)->getALAPTime() << "\tScheduled Time: " << (*it)->query_Schedule() << std::endl;
+	//}
 
 	std::ofstream outFile(outFileStr, std::ofstream::out);
 
@@ -776,8 +783,10 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	}
 
 	//Declare state reg:
-	outFile << "reg [" << std::to_string(stateRegWidth - 1) << ":0] state;" << std::endl;
-
+	stringstream ugh;
+	ugh << "reg [" << (stateRegWidth - 1) << ":0] state;";
+	outFile << ugh.str() << std::endl;
+	ugh.clear();
 ////////////////////////////////////////////////////////////////ports declared!!
 	int time = 1;
 	int currI;
@@ -796,8 +805,9 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	outFile << "\t\t\tcase (state)" << std::endl;
 
 	//iterate throguh gControlGraph and 
-
-	outFile << "\t\t\t\t" << std::to_string(1) << ": begin" << std::endl;
+	ugh << "\t\t\t\t" << 1 << ": begin";
+	outFile << ugh.str() << std::endl;
+	ugh.clear();
 	currI = minTime;
 	
 	outFile << "\t\t\t\tend" << std::endl;
@@ -811,11 +821,14 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	allStates = gControlGraph.callGS();
 	std::sort(allStates.begin(), allStates.end(), stateSorter);
 
-
+	std::vector<string> vStrings;
 	for (std::vector<State*>::iterator it = allStates.begin(); it != allStates.end(); ++it) {
-		
-		std::cout << "\t" << (*it)->getName() << std::endl;  
-		(*it)->printLines();
+
+		//std::cout << "\t" << (*it)->getName() << std::endl;  
+		vStrings = (*it)->getVerilog();
+		for (std::vector<string>::iterator it = vStrings.begin(); it != vStrings.end(); ++it) {
+			std::cout << *it;
+		}
 	}
 }
 

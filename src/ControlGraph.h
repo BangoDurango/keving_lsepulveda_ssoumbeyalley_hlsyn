@@ -23,6 +23,7 @@ public:
 	Conditional* getStartConditional();
 	Block* getStartBlock();
 	std::vector<State*> callGS();
+	void Bandaid_No1();
 	std::vector<State*> generateStates(Block* b);
 	std::vector<State*> generateStates(Conditional* c);
 private:
@@ -30,5 +31,6 @@ private:
 	std::vector<Conditional*> conditionals;
 	Block* StartBlock;
 	Conditional* StartConditional;
+	std::vector<State*>objStates;
 };
 #endif
