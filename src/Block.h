@@ -40,12 +40,15 @@ public:
 	std::vector<State*> getStates();
 	void setCParent(Conditional* c);
 	Conditional* getCParent();
+	Conditional* getNextConditional();
+	Block* getNextBlock();
 	//bool checkForVertexInConverse();
+	State* getTopState_if_found();
 private:
 
 	std::vector<Vertex*> nodes;
 	std::vector<Edge*> edges;
-	
+	bool found;
 	bool isElse;
 	bool isIf;
 	//Vertex* vCond;
@@ -55,6 +58,7 @@ private:
 	Block* blkPrev;
 	Block* blkNext;
 	Block* BlkConverse;
+	std::vector<State*> states;
 };
 
 #endif

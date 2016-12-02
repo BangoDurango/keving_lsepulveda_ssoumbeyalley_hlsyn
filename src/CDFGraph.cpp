@@ -51,6 +51,7 @@ CDFGraph::CDFGraph()
 	vINOP = new Vertex(0, &INOP);
 	vONOP->setString("OUTPUTS");
 	vINOP->setString("INPUTS");
+	vINOP->scheduleNode(0);
 	//AddSubCnt = 0;
 	//MultCnt = 0;
 	//LogicCnt = 0;
@@ -59,7 +60,7 @@ CDFGraph::CDFGraph()
 	currBlk = new Block;
 	currBlk->addVertex(vINOP);
 	gControlGraph.addBlock(currBlk);
-	StartBlock = currBlk;
+	//StartBlock = currBlk;
 	_last = FUNCTION;
 }
 
@@ -124,7 +125,7 @@ void CDFGraph::parseOperations()
 		std::cout << "No File Strings Loaded to Graph" << std::endl;
 		exit(1);
 	}
-
+	bool first = true;
 	for (std::vector<string>::iterator it = FileStrings.begin(); it != FileStrings.end(); ++it) {
 	
 		if (std::size_t found = it->find(IF) != std::string::npos) {
@@ -145,7 +146,10 @@ void CDFGraph::parseOperations()
 			CondVec.push_back(newC);//pushing conditional to the end of this vector because we need to know the order they occured in
 			currC = newC;
 			gControlGraph.addConditional(currC);
-
+			if (first == true){
+				gControlGraph.setStart(currC);
+			}
+			
 			
 			_last = CONDITIONAL;
 		}
@@ -155,6 +159,7 @@ void CDFGraph::parseOperations()
 			//currBlk->setToElse();
 		}
 		else if (std::size_t found = it->find("}") != std::string::npos) {
+
 			newBlk = new Block();
 			currBlk->setNext(newBlk);
 			newBlk->setPrev(currBlk);	
@@ -186,6 +191,7 @@ void CDFGraph::parseOperations()
 			parseOperation(*it);
 
 		}
+		first = false;
 	}
 	//if (currBlk->getNodes().size() == 0) {
 	//	//currBlk = lastBlock;
@@ -202,7 +208,9 @@ void CDFGraph::parseOperations()
 			vONOP->addIncoming(*it);
 		}
 	}
+
 	currBlk->addVertex(vONOP);
+	currBlk->clearNext();
 }
 
 void CDFGraph::addConditionalVertices() {
@@ -224,38 +232,30 @@ void CDFGraph::addConditionalVertices() {
 	std::vector<Vertex*> vVec;
 	bVec = gControlGraph.getBlocks();
 
-	//for (std::vector<Block*>::iterator bIt = bVec.begin(); bIt != bVec.end(); ++bIt) {
-
-	//	//vVec = (*bIt)->getNodes();
-
-	//	//for (std::vector<Vertex*>::iterator vIt = vVec.begin(); vIt != vVec.end(); ++vIt) {
-
-	//		(*bIt)->checkForVertexInConverse();
-
-	////	}
-
-	//}
+	Block* tempBlock;
 
 	for (std::vector<Conditional*>::iterator it = cndVec.begin(); it != cndVec.end(); ++it) {
 
 		eVec = (*it)->connectVCnd();
-		//for (std::vector<Edge*>::iterator it = eVec.begin(); it != eVec.end(); ++it) {
-		//	if ((*it)->getOutput()->getOutgoing().front()->getOutput() == NULL) {
-		//		//cnt = 0;
-		//		vONOP->addIncoming((*it)->getOutput()->getOutgoing().front());
-		//	}
-		//}
+		
 		Edges.insert(Edges.end(), eVec.begin(), eVec.end());
 		
-		//if ((*it)->getVCondition()->getOutgoing().front()->getOutput() == NULL) {
-		//	(*it)->getVCondition()->fixOutGoing();
-		//	//This is ugly and I hate it.
-		//}
 		cnt = 0;
 	}
 	if (cndVec.back()->getVCondition()->getOutgoing().front() == NULL) {
 		cnt = 0;
 	}
+	//for (std::vector<Block*>::iterator bIt = bVec.begin(); bIt != bVec.end(); ++bIt) {
+	//		tempBlock = (*bIt)->getNextBlock();
+	//		if(tempBlock != NULL){
+	//			if (tempBlock->getNodes().size() == 0) {
+	//				(*bIt)->clearNext();
+	//				(*bIt)->setNext(tempBlock);
+	//				//Memory leaks all over the place with this sucker. over it.
+	//			}
+	//	}
+
+	//}
 }
 //std::vector<Vertex*> CDFGraph::getNodesByOutgoingEdgeID(string s)
 std::vector<Vertex*> CDFGraph::getVerticesByEdgeID(string s)
@@ -580,6 +580,7 @@ void CDFGraph::LIST_R(int n) {
 	latency = n;
 
 	vONOP->setALAPTime(n + 1);
+	vONOP->scheduleNode(n + 1);
 	ALAP(n);
 	
 	//CDFGraph::ALAP(this, n);
@@ -748,13 +749,11 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 			//if (it + 1 != pins.end())ss << ", ";
 		
 	}
-	//for (std::vector<IOV>::iterator it = variables.begin(); it != variables.end(); ++it) {
-	//	tp = it->getType();
-	//	nm = it->getName();
 
-	//		ss << nm << ", ";
-	//		//if (it + 1 != pins.end())ss << ", ";
-	//}
+
+	State* currS;
+
+
 	argStr = ss.str();//argstr is the list of inputs in the function signature
 
 	argStr = argStr.substr(0, argStr.length() - 2); //get rid of extra comma
@@ -807,6 +806,17 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	//outFile << "\tend" << std::endl;
 	outFile << "endmodule" << std::endl;
 	outFile.close();
+
+	std::vector<State*> allStates;
+	allStates = gControlGraph.callGS();
+	std::sort(allStates.begin(), allStates.end(), stateSorter);
+
+
+	for (std::vector<State*>::iterator it = allStates.begin(); it != allStates.end(); ++it) {
+		
+		std::cout << "\t" << (*it)->getName() << std::endl;  
+		(*it)->printLines();
+	}
 }
 
 
