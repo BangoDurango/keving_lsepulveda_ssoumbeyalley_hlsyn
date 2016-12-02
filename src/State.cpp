@@ -11,6 +11,7 @@ State::State(int t, std::string s)
 	stringstream ss;
 	ss << s << t;
 	sName = ss.str();
+	ss.str("");
 	ss.clear();
 	time = t;
 	sCount++;
@@ -30,13 +31,19 @@ int State::getTime()
 {
 	return time;
 }
-
+std::string tabs(int n) {
+	stringstream ss;
+	for (int i = 0; i < n; ++i) {
+		ss << "\t";
+	}
+	return ss.str();
+}
 std::vector<string> State::getVerilog()
 {
 	std::vector<string> vLines;
 	std::string s;
 
-	s = this->sName + ": " + "\nbegin\n";
+	s = this->sName + ": " + tabs(2) + "\nbegin\n";
 	vLines.push_back(s);
 
 	std::string sT, sF;
@@ -46,10 +53,10 @@ std::vector<string> State::getVerilog()
 	for (std::vector<string>::iterator it = slines.begin(); it != slines.end(); ++it) {
 		
 		if (!(*it).find("if")) {
-			vLines.push_back(*it + "\n");
+			vLines.push_back(tabs(3) + *it + "\n");
 		}
 		else {
-			vLines.push_back(*it + ";\n");
+			vLines.push_back(tabs(3) + *it + ";\n");
 		}
 		
 
@@ -61,8 +68,8 @@ std::vector<string> State::getVerilog()
 			if (this->nextIfFalse != NULL) {
 				stemp = this->nextIfFalse->getName();
 				if (stemp.at(0) == 'E') {
-					vLines.push_back("Else");
-					sF = "\nstate = " + this->nextIfFalse->sName + ";\n";
+					vLines.push_back("else");
+					sF = "\nnextstate = " + this->nextIfFalse->sName + ";\n";
 					vLines.push_back(sF);
 				}
 			
@@ -70,13 +77,13 @@ std::vector<string> State::getVerilog()
 		}
 		else {
 			if (this->nextIfTrue != NULL) {
-				s = "\nstate = " + this->nextIfTrue->sName + ";\n";
+				s = "\nnextstate = " + this->nextIfTrue->sName + ";\n";
 				vLines.push_back(s);
 			}
 		}
 	}
 	
-	s = "end\n\n";
+	s = tabs(2) + "end\n\n";
 	vLines.push_back(s);
 
 	return vLines;

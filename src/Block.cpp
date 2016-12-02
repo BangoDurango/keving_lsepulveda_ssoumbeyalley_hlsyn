@@ -175,6 +175,7 @@ std::vector<State*> Block::getStates() {
 	sTime = nodes.front()->query_Schedule();
 	ss << sName << State::getStateCount() << "_";
 	currS = new State(sTime, ss.str());
+	ss.str("");
 	ss.clear();
 	//currS->addVertex(nodes.front());
 	states.push_back(currS);
@@ -197,6 +198,7 @@ std::vector<State*> Block::getStates() {
 			ss << sName << State::getStateCount() << "_";
 			nextS = new State(sTime,ss.str());
 			ss.clear();
+			ss.str("");
 			nextS->addVertex(*currV);
 			currS->setNextIfTrue(nextS);
 			currS = nextS;

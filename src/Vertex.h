@@ -4,7 +4,7 @@
 #define VERTEX_H
 #include "main.h"
 #include "Edge.h"
-
+#include "Parser.h"
 class Vertex {
 	friend class CDFGraph;
 	friend class Block;

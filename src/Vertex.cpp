@@ -43,7 +43,25 @@ Resource* Vertex::checkValidOp(std::string s)
 
 void Vertex::setString(std::string s)
 {
-	this->strNode = s;
+	stringstream ss;
+
+	std::vector<string> tok;
+	tok = Parser::splitByWhitespace(s);
+
+	for (std::vector<string>::iterator it = tok.begin(); it != tok.end(); ++it) {
+		if (*it == "=") {
+			ss << " <= ";
+		}
+		else {
+			ss << *it;
+		}
+		
+	}
+
+	this->strNode = ss.str();
+	ss.str("");
+	ss.clear();
+	return;
 }
 
 std::string Vertex::getString()
