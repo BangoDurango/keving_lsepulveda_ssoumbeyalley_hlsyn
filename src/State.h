@@ -25,6 +25,7 @@ public:
 	void setNextIfTrue(std::vector<State*> s);
 	void setNextIfFalse(std::vector<State*> s);
 	State* getNextIfTrue();
+	void clearNext();
 	State* getNextIfFalse();
 	std::vector<std::string> getLines();
 	void addLine(std::string s);

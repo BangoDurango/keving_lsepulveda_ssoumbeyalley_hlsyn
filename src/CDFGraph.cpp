@@ -683,31 +683,29 @@ bool CDFGraph::checkOutputorVariable(std::string s) {
 	return false;
 
 }
-int CDFGraph::calculateStates() {
+int CDFGraph::calculateStates(int n) {
 	
-	std::vector<int> nums;
-	int ii;
-	int min = 999;
-	int max = -1;
+	//std::vector<int> nums;
+	//int ii;
+	//int min = 999;
+	//int max = -1;
 
-	for (std::vector<Vertex*>::iterator it = Vertices.begin(); it != Vertices.end(); ++it) {
+	/*for (std::vector<Vertex*>::iterator it = Vertices.begin(); it != Vertices.end(); ++it) {
 		ii = (*it)->query_Schedule();
 		if (!(std::find(nums.begin(), nums.end(), ii) != nums.end()) ) {
 			nums.push_back(ii);
 		}
 		if (ii < min) min = ii;
 		if (ii > max) max = ii;
-	}
+	}*/
 
-	int stateRegWidth = ceil(log2(nums.size()));
-	maxTime = max;
-	minTime = min;
+	int stateRegWidth = ceil(log2(n));
+	//maxTime = max;
+	//minTime = min;
 	return stateRegWidth;
 }
 
 void CDFGraph::generateVerilogFile(char* outFileStr) {
-
-	int stateRegWidth = CDFGraph::calculateStates();
 
 	std::vector<string> outLines;
 	std::string sLine;
@@ -767,7 +765,7 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	argStr = argStr.substr(0, argStr.length() - 2); //get rid of extra comma
 	outFile << "`timescale 1ns / 1ps" << std::endl;
 
-	outFile << "module HLSM (" << argStr << ");" << std::endl << std::endl;
+	outFile << "module HLSM (start, " << argStr << ");" << std::endl << std::endl;
 
 	for (std::vector<IOV>::iterator it = inputs.begin(); it != inputs.end(); ++it) {//declaring inputs etc
 		outFile << it->getOutputLine() << std::endl;
@@ -782,17 +780,27 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	for (std::vector<IOV>::iterator it = variables.begin(); it != variables.end(); ++it) {//declaring inputs etc
 		outFile << it->getOutputLine() << std::endl;
 	}
-
+	outFile << "input start;" << std::endl;
 	//Declare state reg:
 	//outFile << "output state;\n";
 	stringstream ugh;
 	string statestring;
-	ugh << " reg [" << (stateRegWidth - 1) << ":0] state, nextstate;\n";
+	////////////////////////////////////////////////////////////////ports declared!!
+
+	string debugLine;
+	std::vector<State*> allStates;
+	allStates = gControlGraph.callGS();
+	std::sort(allStates.begin(), allStates.end(), stateSorter);
+
+	int stateRegWidth = calculateStates(allStates.size());
+
+	ugh << "reg [" << (stateRegWidth - 1) << ":0] state, nextstate;\n";
+
 	statestring = ugh.str();// + std::endl;
 	outFile << statestring;
 	ugh.clear();
 	ugh.str("");
-////////////////////////////////////////////////////////////////ports declared!!
+
 	int time = 1;
 	int currI;
 	bool flag = true;
@@ -800,17 +808,19 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	//std::vector<Vertex*> tmpV;
 	//Block* currB;
 	//currB = StartBlock;
-	string debugLine;
-	std::vector<State*> allStates;
-	allStates = gControlGraph.callGS();
-	std::sort(allStates.begin(), allStates.end(), stateSorter);
+
 
 	stringstream params;
 	std::string tabs = "\t\t\t\t\t";
-	params << "parameter ";// << statestring;
-	int count = 0;
 
-	allStates.front()->setName("wait1");
+	params << "parameter wait1 = 0,";// << statestring;
+	int count = 1;
+
+	//allStates.front()->setName("wait1");
+	//allStates.front()->
+	//allStates.erase(allStates.begin());
+
+	
 	for (std::vector<State*>::iterator it = allStates.begin(); it != allStates.end(); ++it) {
 		params << (*it)->getName();
 		if ((it) != allStates.end() && (it + 1) == allStates.end()) {
@@ -825,21 +835,25 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	params.str("");
 	params.clear();
 
-	outFile <<  std::endl << "always @(state)" << std::endl;
-	outFile << "\tbegin" << std::endl;
+	outFile <<  std::endl << "always @(state) begin" << std::endl;
+	//outFile << "\tbegin" << std::endl;
 	//outFile << "\t\t if (rst)" << std::endl << "\t\t\tstate = 1;" << std::endl;
 	//outFile << "\t\telse" << std::endl;
-	outFile << "\t\t\tcase (state)" << std::endl;
+	outFile << "\tcase (state)" << std::endl;
 
-
+	outFile << "\t\twait1: begin\t\t\n\t\t\tif( start == 1 )\n\t\t\t\tnextstate <= " << allStates.front()->getName() << ";\n";
+	outFile << "\t\t\telse\n\t\t\t\tnextstate <= wait1;\n\t\tend\n";
 	std::vector<string> vStrings;
+	State* newS = new State(allStates.size() + 1, "wait1");
+	allStates.back()->setNextIfTrue(newS);
+
 	for (std::vector<State*>::iterator it = allStates.begin(); it != allStates.end(); ++it) {
 
 		//std::cout << "\t" << (*it)->getName() << std::endl;  
 		vStrings = (*it)->getVerilog();
 		for (std::vector<string>::iterator it = vStrings.begin(); it != vStrings.end(); ++it) {
 			std::cout << *it;
-			outFile << *it;
+			outFile <<  *it;
 		}
 	}
 
@@ -852,15 +866,15 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	
 	//outFile << "\t\t\t\tend" << std::endl;
 	outFile << "\t\t\tendcase" << std::endl;
-	outFile << "\t\tend" << std::endl;
+	outFile << "\t\tend\n" << std::endl;
 	//outFile << "\tend" << std::endl;
 
 	outFile << "always @(posedge clk) begin\n";
-	outFile << "if (rst == 1)\n";
-	outFile << "\tstate <= wait1;\n";
-	outFile << "else\n";
-	outFile << "\tstate <= nextstate;\n";
-	outFile << "end\n";
+	outFile << "\tif (rst == 1)\n";
+	outFile << "\t\tstate <= wait1;\n";
+	outFile << "\telse\n";
+	outFile << "\t\tstate <= nextstate;\n";
+	outFile << "\tend\n";
 	outFile << "endmodule" << std::endl;
 	outFile.close();
 

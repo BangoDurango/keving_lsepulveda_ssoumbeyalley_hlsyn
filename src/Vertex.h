@@ -41,7 +41,9 @@ public:
 
 	void scheduleNode(int t);
 	int query_Schedule();
+
 private:
+
 	int schedule;
 	//std::string sType;
 	Resource* rType;

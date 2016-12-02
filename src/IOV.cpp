@@ -49,7 +49,7 @@ void IOV::setType(string s)
 	}
 	if (type == VARIABLE) {
 		//sType_out = " integer";
-		ss << "reg" << s_us << " [" << (iBitWidth - 1) << ":0] " << name << ";";
+		ss << "reg" << s_us << "[" << (iBitWidth - 1) << ":0] " << name << ";";
 		lineOutput = ss.str();
 		ss.clear();
 		ss.str("");
@@ -59,7 +59,7 @@ void IOV::setType(string s)
 			s_us = "reg" + s_us;
 		}
 		if (iBitWidth > 1) {
-			ss << sType_out << s_us << " [" << (iBitWidth - 1) << ":0] " << name << ";";
+			ss << sType_out << s_us << "[" << (iBitWidth - 1) << ":0] " << name << ";";
 			lineOutput = ss.str();// +std::endl;
 			ss.clear();
 			ss.str("");

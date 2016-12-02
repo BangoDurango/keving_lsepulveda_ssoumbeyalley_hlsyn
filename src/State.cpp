@@ -5,11 +5,22 @@ State::State()
 {
 	sCount++;
 }
-
+std::string tabs(int n) {
+	stringstream ss;
+	for (int i = 0; i < n; ++i) {
+		ss << "\t";
+	}
+	return ss.str();
+}
 State::State(int t, std::string s)
 {
 	stringstream ss;
-	ss << s << t;
+	if (s == "wait1") {
+		ss << s;
+	}
+	else {
+		ss << s << t;
+	}
 	sName = ss.str();
 	ss.str("");
 	ss.clear();
@@ -31,19 +42,13 @@ int State::getTime()
 {
 	return time;
 }
-std::string tabs(int n) {
-	stringstream ss;
-	for (int i = 0; i < n; ++i) {
-		ss << "\t";
-	}
-	return ss.str();
-}
+
 std::vector<string> State::getVerilog()
 {
 	std::vector<string> vLines;
 	std::string s;
 
-	s = this->sName + ": " + tabs(2) + "\nbegin\n";
+	s = tabs(3) + this->sName + ":\n"  +tabs(4)+  "begin\n";
 	vLines.push_back(s);
 
 	std::string sT, sF;
@@ -53,37 +58,35 @@ std::vector<string> State::getVerilog()
 	for (std::vector<string>::iterator it = slines.begin(); it != slines.end(); ++it) {
 		
 		if (!(*it).find("if")) {
-			vLines.push_back(tabs(3) + *it + "\n");
+			vLines.push_back(tabs(5) + *it + "\n");
 		}
 		else {
-			vLines.push_back(tabs(3) + *it + ";\n");
+			vLines.push_back(tabs(5) + *it + ";\n");
 		}
 		
-
-		if (sName.at(0) == 'C') {
-			if (this->nextIfTrue != NULL) {
-				sT = "state = " + this->nextIfTrue->sName + ";\n";
-				vLines.push_back(sT);
-			}
-			if (this->nextIfFalse != NULL) {
-				stemp = this->nextIfFalse->getName();
-				if (stemp.at(0) == 'E') {
-					vLines.push_back("else");
-					sF = "\nnextstate = " + this->nextIfFalse->sName + ";\n";
-					vLines.push_back(sF);
-				}
-			
-			}
+	}
+	if (sName.at(0) == 'C') {
+		if (this->nextIfTrue != NULL) {
+			sT = tabs(6) + "nextstate <= " + this->nextIfTrue->sName + ";\n";
+			vLines.push_back(sT);
 		}
-		else {
-			if (this->nextIfTrue != NULL) {
-				s = "\nnextstate = " + this->nextIfTrue->sName + ";\n";
-				vLines.push_back(s);
+		if (this->nextIfFalse != NULL) {
+			stemp = this->nextIfFalse->getName();
+			if (stemp.at(0) == 'E') {
+				vLines.push_back(tabs(5) + "else\n");
+				sF = tabs(6) + "nextstate <= " + this->nextIfFalse->sName + ";\n";
+				vLines.push_back(sF);
 			}
+
 		}
 	}
-	
-	s = tabs(2) + "end\n\n";
+	else {
+		if (this->nextIfTrue != NULL) {
+			s = tabs(5) + "nextstate <= " + this->nextIfTrue->sName + ";\n";
+			vLines.push_back(s);
+		}
+	}
+	s = tabs(4) + "end\n\n";
 	vLines.push_back(s);
 
 	return vLines;
@@ -144,6 +147,12 @@ State* State::combineStates(State* s1, State* conditional){
 }
 State* State::getNextIfTrue(){
 	return nextIfTrue;
+}
+void State::clearNext() {
+
+	this->nextIfFalse = NULL;
+	this->nextIfTrue = NULL;
+
 }
 State* State::getNextIfFalse(){
 	return nextIfFalse;

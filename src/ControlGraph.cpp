@@ -85,15 +85,20 @@ std::vector<State*> ControlGraph::callGS() {
 void  ControlGraph::Bandaid_No1() {
 	std::string s;
 	//I AM WRITING THIS PROGRAM ALONE AND I HAVE SPENT WAY TOO MUCH TIME ON IT SO I DON'T CARE IF THIS IS A GOOD SOLUTION. I JUST WANT TO GRADUATE AND NEVER DO A GROUP PROJECT AGAIN UNLESS I'M GETTING PAID.
-	for (std::vector<State*>::iterator sIt = objStates.begin() + 1; sIt != objStates.end() - 1;) {
+	for (std::vector<State*>::iterator sIt = objStates.begin(); sIt != objStates.end();) {
 		s = (*sIt)->getNodes().front()->getString();
-		if (s == "INPUTS" || s == "OUTPUTS") {
+		if ((sIt + 1) != objStates.end() && (sIt + 2) == objStates.end()) {
+			(*sIt)->clearNext();
+		}
+		if (s == "INPUTS" || s == "OUTPUTS") {//gets rid of the ones in the middle I DON'T CARE SHUTUP
+			
 			sIt = objStates.erase(sIt);
 		}
 		else {
 			sIt++;
 		}
 	}
+
 }
 std::vector<State*> ControlGraph::generateStates(Block* b) {
 	State* newS;

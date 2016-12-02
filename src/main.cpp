@@ -11,11 +11,11 @@
 
 
 int main (int argc, char* argv[]){
-	//string path = "C:\\Users\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\assignment3_testfiles_full\\if tests\\";
-	string path = "E:\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\testfiles\\";
+	string path = "C:\\Users\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\assignment3_testfiles_full";
+	//string path = "E:\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\testfiles\\";
 	//string path = "E:\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\testfiles\\standard tests\\";
 	//string path = "C:\\Users\\keving\\Desktop\\keving_lsepulveda_ssoumbeyalley_hlsyn\\assignment3_testfiles_full\\";
-	string inFileString = "if_tests\\test_if4.c";
+	string inFileString = "\\if tests\\test_if1.c";
 	char* inCStr = new char[(path + inFileString).length() - 1];
 	strcpy(inCStr, (path + inFileString).c_str());
 

@@ -48,7 +48,7 @@ public:
 
 	bool checkOutputorVariable(std::string s);
 
-	int calculateStates();
+	int calculateStates(int n);
 
 	void generateVerilogFile(char * outFileStr);
 

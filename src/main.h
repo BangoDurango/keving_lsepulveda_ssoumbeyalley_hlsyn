@@ -50,10 +50,3 @@ struct Resource {
 	int inUse;
 };//ADDER_SUBTRACTOR, MULTIPLIER, LOGICAL;
 
-std::string tabs(int n) {
-	stringstream ss;
-	for (int i = 0; i < n; ++i) {
-		ss << "\t";
-	}
-	return ss.str();
-}
