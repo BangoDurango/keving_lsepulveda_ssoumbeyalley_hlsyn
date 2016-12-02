@@ -52,11 +52,7 @@ public:
 
 	void generateVerilogFile(char * outFileStr);
 
-	//std::vector<State*> getStatesForBlock(Block * currB);
-
 	void resetVertexVisits();
-
-	void hookUpCondStates();
 
 
 	void LIST_R(CDFGraph * g, Vertex * v);
@@ -81,7 +77,6 @@ private:
 
 	ControlGraph gControlGraph;
 	Block* currBlk;
-	Block* StartBlock;
 	Conditional* currC;
 	std::vector<Conditional*> CondVec;
 	BlockType _last;
@@ -91,6 +86,7 @@ private:
 	static Resource LOGICAL;
 	static Resource IF_STATEMENT;
 	std::vector<Resource*> rVec;
+
 	int latency;
 	int maxTime;
 	int minTime;

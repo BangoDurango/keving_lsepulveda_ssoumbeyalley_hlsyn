@@ -33,27 +33,11 @@ public:
 	void resetVisit();
 	bool checkVisited();
 	//static void setLatency(int n);
-	
+	bool used;
 	int getALAPTime();
 	void setALAPTime(int n);
 
 	bool operator==(const Vertex & other) const;
-
-	bool operator!=(const Vertex & other) const;
-
-	//bool operator<(const Vertex & other) const;
-
-	//bool operator>(const Vertex & other) const;
-	//bool operator < (const Vertex &other)  {
-	//	// Compare the values, and return a bool result.
-	//	return  (ALAPtime < other.ALAPtime);
-	//}
-
-	//bool operator > (const Vertex &other)  {
-	//	// Compare the values, and return a bool result.
-	//	return  (ALAPtime > other.ALAPtime);
-	//}
-
 
 	void scheduleNode(int t);
 	int query_Schedule();

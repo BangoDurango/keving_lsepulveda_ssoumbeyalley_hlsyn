@@ -51,6 +51,7 @@ CDFGraph::CDFGraph()
 	vINOP = new Vertex(0, &INOP);
 	vONOP->setString("OUTPUTS");
 	vINOP->setString("INPUTS");
+	vINOP->scheduleNode(0);
 	//AddSubCnt = 0;
 	//MultCnt = 0;
 	//LogicCnt = 0;
@@ -59,7 +60,7 @@ CDFGraph::CDFGraph()
 	currBlk = new Block;
 	currBlk->addVertex(vINOP);
 	gControlGraph.addBlock(currBlk);
-	StartBlock = currBlk;
+	//StartBlock = currBlk;
 	_last = FUNCTION;
 }
 
@@ -119,14 +120,15 @@ void CDFGraph::parseOperations()
 	Block* newBlk;
 	Block* tempF = NULL;
 	Block* lastBlock;
+	bool opsFound = false;
 
 	if (this->FileStrings.size() == 0) {
 		std::cout << "No File Strings Loaded to Graph" << std::endl;
 		exit(1);
 	}
-
+	bool first = true;
 	for (std::vector<string>::iterator it = FileStrings.begin(); it != FileStrings.end(); ++it) {
-	
+		
 		if (std::size_t found = it->find(IF) != std::string::npos) {
 			newC = new Conditional(*it);
 			tempV = parseConditional(*it);
@@ -145,7 +147,10 @@ void CDFGraph::parseOperations()
 			CondVec.push_back(newC);//pushing conditional to the end of this vector because we need to know the order they occured in
 			currC = newC;
 			gControlGraph.addConditional(currC);
-
+			if (first == true){
+				gControlGraph.setStart(currC);
+			}
+			
 			
 			_last = CONDITIONAL;
 		}
@@ -155,21 +160,23 @@ void CDFGraph::parseOperations()
 			//currBlk->setToElse();
 		}
 		else if (std::size_t found = it->find("}") != std::string::npos) {
-			newBlk = new Block();
-			currBlk->setNext(newBlk);
-			newBlk->setPrev(currBlk);	
-			lastBlock = currBlk;
-			currBlk = newBlk;
-			gControlGraph.addBlock(currBlk);
-			if (tempF != NULL) {
-				tempF->setNext(newBlk);
-				tempF = NULL;
+			if (opsFound) {
+				newBlk = new Block();
+				currBlk->setNext(newBlk);
+				newBlk->setPrev(currBlk);
+				lastBlock = currBlk;
+				currBlk = newBlk;
+				gControlGraph.addBlock(currBlk);
+				if (tempF != NULL) {
+					tempF->setNext(newBlk);
+					tempF = NULL;
+				}
+				else {
+					CondVec.back()->setNextIfFalse(currBlk);
+					CondVec.pop_back();
+				}
+				opsFound = false;
 			}
-			else {
-				CondVec.back()->setNextIfFalse(currBlk);
-				CondVec.pop_back();
-			}
-			
 			
 			_last = FUNCTION;
 
@@ -184,17 +191,18 @@ void CDFGraph::parseOperations()
 				_last = FUNCTION;
 			}
 			parseOperation(*it);
-
+			opsFound = true;
 		}
+		first = false;
 	}
 	//if (currBlk->getNodes().size() == 0) {
 	//	//currBlk = lastBlock;
 	//	//gControlGraph.getBlocks().erase(gControlGraph.getBlocks().end());
-	currBlk = gControlGraph.dropLast();
+	//currBlk = gControlGraph.dropLast();
 	//}
 	//currBlk = new Block;
 		
-	
+	currBlk->addVertex(vONOP);
 	//currC->setNextIfFalse(currBlk);
 	CDFGraph::addConditionalVertices();
 	for (std::vector<Edge*>::iterator it = Edges.begin(); it != Edges.end(); ++it) {
@@ -202,7 +210,9 @@ void CDFGraph::parseOperations()
 			vONOP->addIncoming(*it);
 		}
 	}
-	currBlk->addVertex(vONOP);
+
+
+	//currBlk->clearNext();
 }
 
 void CDFGraph::addConditionalVertices() {
@@ -224,38 +234,30 @@ void CDFGraph::addConditionalVertices() {
 	std::vector<Vertex*> vVec;
 	bVec = gControlGraph.getBlocks();
 
-	//for (std::vector<Block*>::iterator bIt = bVec.begin(); bIt != bVec.end(); ++bIt) {
-
-	//	//vVec = (*bIt)->getNodes();
-
-	//	//for (std::vector<Vertex*>::iterator vIt = vVec.begin(); vIt != vVec.end(); ++vIt) {
-
-	//		(*bIt)->checkForVertexInConverse();
-
-	////	}
-
-	//}
+	Block* tempBlock;
 
 	for (std::vector<Conditional*>::iterator it = cndVec.begin(); it != cndVec.end(); ++it) {
 
 		eVec = (*it)->connectVCnd();
-		//for (std::vector<Edge*>::iterator it = eVec.begin(); it != eVec.end(); ++it) {
-		//	if ((*it)->getOutput()->getOutgoing().front()->getOutput() == NULL) {
-		//		//cnt = 0;
-		//		vONOP->addIncoming((*it)->getOutput()->getOutgoing().front());
-		//	}
-		//}
+		
 		Edges.insert(Edges.end(), eVec.begin(), eVec.end());
 		
-		//if ((*it)->getVCondition()->getOutgoing().front()->getOutput() == NULL) {
-		//	(*it)->getVCondition()->fixOutGoing();
-		//	//This is ugly and I hate it.
-		//}
 		cnt = 0;
 	}
 	if (cndVec.back()->getVCondition()->getOutgoing().front() == NULL) {
 		cnt = 0;
 	}
+	//for (std::vector<Block*>::iterator bIt = bVec.begin(); bIt != bVec.end(); ++bIt) {
+	//		tempBlock = (*bIt)->getNextBlock();
+	//		if(tempBlock != NULL){
+	//			if (tempBlock->getNodes().size() == 0) {
+	//				(*bIt)->clearNext();
+	//				(*bIt)->setNext(tempBlock);
+	//				//Memory leaks all over the place with this sucker. over it.
+	//			}
+	//	}
+
+	//}
 }
 //std::vector<Vertex*> CDFGraph::getNodesByOutgoingEdgeID(string s)
 std::vector<Vertex*> CDFGraph::getVerticesByEdgeID(string s)
@@ -580,6 +582,7 @@ void CDFGraph::LIST_R(int n) {
 	latency = n;
 
 	vONOP->setALAPTime(n + 1);
+	vONOP->scheduleNode(n + 1);
 	ALAP(n);
 	
 	//CDFGraph::ALAP(this, n);
@@ -662,6 +665,11 @@ bool CDFGraph::checkInputorVariable(std::string s) {
 
 bool CDFGraph::checkOutputorVariable(std::string s) {
 	IOV* tIOV = getIOVbyName(s);
+	for (std::vector<IOV>::iterator it = inputs.begin(); it != inputs.end(); ++it) {
+		if (it->getName() == s) {
+			return true;
+		}
+	}
 	for (std::vector<IOV>::iterator it = outputs.begin(); it != outputs.end(); ++it) {
 		if (it->getName() == s) {
 			return true;
@@ -706,9 +714,9 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	std::stringstream ss;
 	
 	std::sort(Vertices.begin(), Vertices.end(), sortbySchedule);
-	for (std::vector<Vertex*>::iterator it = Vertices.begin(); it != Vertices.end(); ++it) {
-		std::cout << left << "Node: [" << (*it)->getString() << "]\t\t" << right << "ALAP Time:" << (*it)->getALAPTime() << "\tScheduled Time: " << (*it)->query_Schedule() << std::endl;
-	}
+	//for (std::vector<Vertex*>::iterator it = Vertices.begin(); it != Vertices.end(); ++it) {
+	//	std::cout << left << "Node: [" << (*it)->getString() << "]\t\t" << right << "ALAP Time:" << (*it)->getALAPTime() << "\tScheduled Time: " << (*it)->query_Schedule() << std::endl;
+	//}
 
 	std::ofstream outFile(outFileStr, std::ofstream::out);
 
@@ -748,13 +756,11 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 			//if (it + 1 != pins.end())ss << ", ";
 		
 	}
-	//for (std::vector<IOV>::iterator it = variables.begin(); it != variables.end(); ++it) {
-	//	tp = it->getType();
-	//	nm = it->getName();
 
-	//		ss << nm << ", ";
-	//		//if (it + 1 != pins.end())ss << ", ";
-	//}
+
+	State* currS;
+
+
 	argStr = ss.str();//argstr is the list of inputs in the function signature
 
 	argStr = argStr.substr(0, argStr.length() - 2); //get rid of extra comma
@@ -777,8 +783,10 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	}
 
 	//Declare state reg:
-	outFile << "reg [" << std::to_string(stateRegWidth - 1) << ":0] state;" << std::endl;
-
+	stringstream ugh;
+	ugh << "reg [" << (stateRegWidth - 1) << ":0] state;";
+	outFile << ugh.str() << std::endl;
+	ugh.clear();
 ////////////////////////////////////////////////////////////////ports declared!!
 	int time = 1;
 	int currI;
@@ -797,8 +805,9 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	outFile << "\t\t\tcase (state)" << std::endl;
 
 	//iterate throguh gControlGraph and 
-
-	outFile << "\t\t\t\t" << std::to_string(1) << ": begin" << std::endl;
+	ugh << "\t\t\t\t" << 1 << ": begin";
+	outFile << ugh.str() << std::endl;
+	ugh.clear();
 	currI = minTime;
 	
 	outFile << "\t\t\t\tend" << std::endl;
@@ -807,6 +816,20 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	//outFile << "\tend" << std::endl;
 	outFile << "endmodule" << std::endl;
 	outFile.close();
+
+	std::vector<State*> allStates;
+	allStates = gControlGraph.callGS();
+	std::sort(allStates.begin(), allStates.end(), stateSorter);
+
+	std::vector<string> vStrings;
+	for (std::vector<State*>::iterator it = allStates.begin(); it != allStates.end(); ++it) {
+
+		//std::cout << "\t" << (*it)->getName() << std::endl;  
+		vStrings = (*it)->getVerilog();
+		for (std::vector<string>::iterator it = vStrings.begin(); it != vStrings.end(); ++it) {
+			std::cout << *it;
+		}
+	}
 }
 
 

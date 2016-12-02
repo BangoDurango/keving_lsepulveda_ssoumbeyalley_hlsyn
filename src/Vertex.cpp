@@ -4,6 +4,7 @@ std::vector<Resource*> Vertex::resources;
 
 
 Vertex::Vertex() {
+	used = false;
 	rType = NULL;
 	schedule = 0;
 	visited = false;
@@ -11,23 +12,7 @@ Vertex::Vertex() {
 	ALAPtime = 999;
 	//ALAPtime = CDFGraph::latency;
 }
-//Vertex::Vertex(int n)
-//{
-//	rType = NULL;
-//	strNode = "b";
-//	ALAPtime = Vertex::latency;
-//	visited = false;
-//	ID = n;
-//}
-//
-//Vertex::Vertex(int n, std::string strType)
-//{
-//	strNode = "c";
-//	ALAPtime = Vertex::latency;
-//	visited = false;
-//	ID = n;
-//	sType = strType;
-//}
+
 
 Vertex::Vertex(int n, Resource* inRType)
 {
@@ -53,37 +38,7 @@ Resource* Vertex::checkValidOp(std::string s)
 		}
 	}
 	return NULL;
-/*
-	if (s == "+") {
-		return PLUS;
-	}
-	else if (s == "-") {
-		return MINUS;
-	}
-	else if (s == "*") {
-		return MULT;
-	}
-	else if (s == ">") {
-		return GT;
-	}
-	else if (s == "<") {
-		return LT;
-	}
-	else if (s == "==") {
-		return ET;
-	}
-	else if (s == "?") {
-		return MUX;
-	}
-	else if (s == ">>") {
-		return SR;
-	}
-	else if (s == "<<") {
-		return SL;
-	}
 
-
-	return INVALID;*/
 }
 
 void Vertex::setString(std::string s)
@@ -250,10 +205,10 @@ bool Vertex::operator==(const Vertex &other) const {
 	}
 	return false;
 }
-bool Vertex::operator!=(const Vertex &other) const {
-	// Compare the values, and return a bool result.
-	return  *this == other;
-}
+//bool Vertex::operator!=(const Vertex &other) const {
+//	// Compare the values, and return a bool result.
+//	return  !(*this == other);
+//}
 
 //bool Vertex::operator < (const Vertex &other) const {
 //	// Compare the values, and return a bool result.

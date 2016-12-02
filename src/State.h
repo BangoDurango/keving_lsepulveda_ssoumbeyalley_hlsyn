@@ -9,20 +9,42 @@ class State {
 
 public:
 	State();
-	State(int t);
+	State(int t, std::string s);
 	void addVertex(Vertex* v);
-	static State* combineIfElseStates(State* s1, State* s2, Vertex* vCond);
+	//static State* combineIfElseStates(State* s1, State* s2, Vertex* vCond);
 	std::vector<Vertex*> getNodes();
 	int getTime();
 	std::vector<string> getVerilog();
-	void setNext(State* n);
+	//void setNext(State* n);
 	std::vector<string> getStrings();
+	void setName(std::string s);
+	std::string getName();
+	static State* combineStates(State* s1, State* conditional);
+	void setNextIfTrue(State* s);
+	void setNextIfFalse(State* s);
+	void setNextIfTrue(std::vector<State*> s);
+	void setNextIfFalse(std::vector<State*> s);
+	State* getNextIfTrue();
+	State* getNextIfFalse();
+	std::vector<std::string> getLines();
+	void addLine(std::string s);
 
+	void printLines();
+
+	//bool operator==(const State & other) const;
+
+	//bool operator!=(const State & other) const;
+	static void resetStateCount();
+	static int getStateCount();
+	
 private:
-
-	State* nextState;
+	std::string sName;
+	//State* nextState;
+	static int sCount;
+	State* nextIfTrue;
+	State* nextIfFalse;
 	int time;
 	std::vector<Vertex*> nodes;
-
+	std::vector<std::string> slines;
 };
 #endif

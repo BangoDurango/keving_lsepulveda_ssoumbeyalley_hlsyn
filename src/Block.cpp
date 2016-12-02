@@ -3,7 +3,7 @@
 
 Block::Block()
 {	
-	cParent = NULL;
+	//cParent = NULL;
 	//vCond = NULL;
 	BlkConverse = NULL;
 	cPrev = NULL;
@@ -12,6 +12,7 @@ Block::Block()
 	blkNext = NULL;
 	isIf = false;
 	isElse = false;
+	found = false;
 }
 
 void Block::addVertex(Vertex * v)
@@ -59,6 +60,7 @@ void Block::setNext(Block * f)
 void Block::clearNext()
 {
 	this->blkNext = NULL;
+	this->cNext = NULL;
 }
 
 std::vector<Vertex*> Block::getNodes()
@@ -144,35 +146,69 @@ bool sortbySchedule2(Vertex *lhs, Vertex *rhs)
 }
 std::vector<State*> Block::getStates() {
 	State* currS;
-	int tCurr, tLast;
-	std::vector<State*> states;
-	std::vector<Vertex*> elseNodes;
-	Vertex* condV;
+	State* nextS;
+	//int tCurr, tLast;
+	int sTime;
+	stringstream ss;
+	if (states.size() > 0) {
+		return states;
+	}
+
+		std::vector<Vertex*> elseNodes;
+//	Vertex* condV;
 
 	std::sort(nodes.begin(), nodes.end(), sortbySchedule2);
-	tLast = nodes.front()->query_Schedule();
-	currS = new State(tLast);
 
 
+	std::string sName;
 
+	if (isIf){
+		sName = "F_" ;
+	}
+	else if (isElse){
+		sName = "E_";
+	}
+	else{
+		sName = "D_";
+	}
+//	sName = "blk_";
+	sTime = nodes.front()->query_Schedule();
+	ss << sName << State::getStateCount() << "_";
+	currS = new State(sTime, ss.str());
+	ss.clear();
+	//currS->addVertex(nodes.front());
 	states.push_back(currS);
+	State* cState;
+	
+	for (std::vector<Vertex*>::iterator currV = nodes.begin(); currV != nodes.end(); ++currV) {
+		/*if ((*currV)->getString() == "INPUTS" || (*currV)->getString() == "OUTPUTS") {
+			continue;
+		}*/
+		sTime = (*currV)->query_Schedule();
 
-	if (!isIf && !isElse) {
+		if (sTime == currS->getTime()) {
 
-		for (std::vector<Vertex*>::iterator currV = nodes.begin(); currV != nodes.end(); ++currV) {
-			tCurr = (*currV)->query_Schedule();
-			if (tCurr == currS->getTime()) {
-				currS->addVertex(*currV);
-			}
-			else {
-				tCurr == currS->getTime();
-				currS = new State(tCurr);
-				currS->addVertex(*currV);
-				states.push_back(currS);
-			}
+			currS->addVertex(*currV);
+
+		}
+		else {
+
+			sTime = (*currV)->query_Schedule();
+			ss << sName << State::getStateCount() << "_";
+			nextS = new State(sTime,ss.str());
+			ss.clear();
+			nextS->addVertex(*currV);
+			currS->setNextIfTrue(nextS);
+			currS = nextS;
+			states.push_back(currS);
+
 		}
 	}
-	
+
+
+	//std::sort(states)
+	std::vector<Vertex*> tmpN;
+	found = true;
 	return states;
 }
 
@@ -186,3 +222,17 @@ Conditional * Block::getCParent()
 	return cPrev;
 }
 
+Conditional* Block::getNextConditional(){
+	return cNext;
+}
+Block* Block::getNextBlock(){
+	return blkNext;
+}
+
+State * Block::getTopState_if_found()
+{
+	if (found) {
+		return states.front();
+	}
+	return NULL;
+}
