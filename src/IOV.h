@@ -33,14 +33,19 @@ public:
 	//std::vector<IOV> generateIOVs(std::string inputString);
 	//static bool CheckType(std::string);
 	static  void generateIOV(std::vector<string>* strVector, std::vector<IOV>* inputs, std::vector<IOV>* outputs, std::vector<IOV>* variables);
+	std::string getOutputLine();
+	//bool operator==(const IOV & other) const;
+
+	//bool operator!=(const IOV & other) const;
 
 private:
 
 	//unsigned int bitWidth;
 	std::string sBitWidth;
+	int iBitWidth;
 	std::string name;
 	std::string type;
 	std::string dataType;
-
+	std::string lineOutput;
 };
 #endif //CONNECTION_H

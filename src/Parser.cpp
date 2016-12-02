@@ -20,7 +20,7 @@ void Parser::parseFile(char* inFileStr, std::vector<string>* destVector) {
 	}
 	std::string str;
 	while (std::getline(inFile, line)) {
-
+		line.erase(std::remove(line.begin(), line.end(), '\t'), line.end());
 		if (line.find_first_not_of(' ') != std::string::npos) {
 			str = trim(line);
 			destVector->push_back(str);
@@ -37,10 +37,11 @@ std::string Parser::trim(string& str)
 {
 	std::string sTMP;
 	sTMP = str;
-	sTMP.erase(std::remove(sTMP.begin(), sTMP.end(), '\t'), sTMP.end());
+	//sTMP.erase(std::remove(sTMP.begin(), sTMP.end(), '\t'), sTMP.end());
 	size_t first = sTMP.find_first_not_of(' ');
 	size_t last = sTMP.find_last_not_of(' ');
 	return sTMP.substr(first, (last - first + 1));
+	
 }
 vector<std::string> Parser::splitByWhitespace(std::string str) {
 
@@ -91,6 +92,7 @@ std::string Parser::getModuleName(std::string filePath) {
 	//std::cout << filePath << std::endl;
 
 }
+
 std::string Parser::getFilePath(std::string filePath) {
 	std::string name;
 	std::string path;

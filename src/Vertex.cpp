@@ -1,66 +1,67 @@
 #include "Vertex.h"
-int Vertex::latency;
+
+std::vector<Resource*> Vertex::resources;
+
 
 Vertex::Vertex() {
+	used = false;
+	rType = NULL;
+	schedule = 0;
 	visited = false;
 	strNode = "a";
-	ALAPtime = latency;
+	ALAPtime = 999;
 	//ALAPtime = CDFGraph::latency;
 }
-Vertex::Vertex(int n)
+
+
+Vertex::Vertex(int n, Resource* inRType)
 {
-	strNode = "b";
-	ALAPtime = Vertex::latency;
-	visited = false;
-	ID = n;
+		//	ALAPtime = Vertex::latency;
+		ALAPtime = 999;
+		visited = false;
+		ID = n;
+		//sType = strType;
+		rType = inRType;
 }
 
-Vertex::Vertex(int n, std::string strType)
+Resource* Vertex::checkValidOp(std::string s)
 {
-	strNode = "c";
-	ALAPtime = Vertex::latency;
-	visited = false;
-	ID = n;
-	sType = strType;
-}
+	//std::vector<Resource*> rVec;
+	//bool flag = false;
+	for (std::vector<Resource*>::iterator it = resources.begin(); it != resources.end(); ++it){
+		//if ((*it)->)
+		for (std::vector<std::string>::iterator sIt = (*it)->ops.begin(); sIt != (*it)->ops.end(); ++sIt){
+			if (*sIt == s) {
+				return *it;
+			}
+			
+		}
+	}
+	return NULL;
 
-string Vertex::checkValidOp(std::string s)
-{
-	if (s == "+") {
-		return PLUS;
-	}
-	else if (s == "-") {
-		return MINUS;
-	}
-	else if (s == "*") {
-		return MULT;
-	}
-	else if (s == ">") {
-		return GT;
-	}
-	else if (s == "<") {
-		return LT;
-	}
-	else if (s == "==") {
-		return ET;
-	}
-	else if (s == "?") {
-		return MUX;
-	}
-	else if (s == ">>") {
-		return SR;
-	}
-	else if (s == "<<") {
-		return SL;
-	}
-
-
-	return INVALID;
 }
 
 void Vertex::setString(std::string s)
 {
-	this->strNode = s;
+	stringstream ss;
+
+	std::vector<string> tok;
+	tok = Parser::splitByWhitespace(s);
+
+	for (std::vector<string>::iterator it = tok.begin(); it != tok.end(); ++it) {
+		if (*it == "=") {
+			ss << " <= ";
+		}
+		else {
+			ss << *it;
+		}
+		
+	}
+
+	this->strNode = ss.str();
+	ss.str("");
+	ss.clear();
+	return;
 }
 
 std::string Vertex::getString()
@@ -78,15 +79,28 @@ int Vertex::getID()
 	return ID;
 }
 
-void Vertex::setType(string s)
-{
-	sType = s;
+void Vertex::setType(Resource * r)
+{	
+	int nCnt = r->cnt + 1;
+	r->cnt = nCnt;
+	this->ID = r->cnt;
+	rType = r;
 }
 
-std::string Vertex::getType()
+Resource * Vertex::getType()
 {
-	return sType;
+	return rType;
 }
+
+//void Vertex::setType(string s)
+//{
+//	sType = s;
+//}
+//
+//std::string Vertex::getType()
+//{
+//	return sType;
+//}
 
 //void Vertex::setE1E2(Edge * e1, Edge * e2)
 //{
@@ -133,6 +147,11 @@ void Vertex::addIncoming(Edge * e)
 
 void Vertex::addOutgoing(Edge * e)
 {	
+	//if (e->getID() == "t") {
+	//	//if (strNode == "OUTPUTS") {
+	//		std::cout << "stop";
+	//	//}
+	//}
 	e->setInput(this);
 
 	outgoing.push_back(e);
@@ -142,6 +161,7 @@ void Vertex::fixOutGoing() {
 	if (outgoing.front()->getOutput() == NULL) {
 		outgoing.erase(outgoing.begin());
 	}
+	
 }
 //void Vertex::setVNumber(int n)
 //{
@@ -156,6 +176,11 @@ void Vertex::fixOutGoing() {
 void Vertex::visit()
 {
 	this->visited = true;
+}
+
+void Vertex::resetVisit()
+{
+	this->visited = false;
 }
 
 bool Vertex::checkVisited()
@@ -177,3 +202,38 @@ void Vertex::setALAPTime(int n)
 {
 	ALAPtime = n;
 }
+
+
+void Vertex::scheduleNode(int t)
+{
+	schedule = t;
+}
+
+int Vertex::query_Schedule()
+{
+	return schedule;
+}
+
+bool Vertex::operator==(const Vertex &other) const {
+	  // Compare the values, and return a bool result.
+	if (strNode == other.strNode) {
+		if (ID == other.ID) {
+			return true;
+		}
+	}
+	return false;
+}
+//bool Vertex::operator!=(const Vertex &other) const {
+//	// Compare the values, and return a bool result.
+//	return  !(*this == other);
+//}
+
+//bool Vertex::operator < (const Vertex &other) const {
+//	// Compare the values, and return a bool result.
+//	return  (ALAPtime < other.ALAPtime);
+//}
+//
+//bool Vertex::operator > (const Vertex &other) const {
+//	// Compare the values, and return a bool result.
+//	return  (ALAPtime > other.ALAPtime);
+//}
