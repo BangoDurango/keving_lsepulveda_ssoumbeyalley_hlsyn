@@ -92,6 +92,7 @@ std::string Parser::getModuleName(std::string filePath) {
 	//std::cout << filePath << std::endl;
 
 }
+
 std::string Parser::getFilePath(std::string filePath) {
 	std::string name;
 	std::string path;

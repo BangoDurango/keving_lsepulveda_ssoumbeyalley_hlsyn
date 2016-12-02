@@ -52,6 +52,7 @@ void IOV::setType(string s)
 		ss << "reg" << s_us << " [" << (iBitWidth - 1) << ":0] " << name << ";";
 		lineOutput = ss.str();
 		ss.clear();
+		ss.str("");
 	}
 	else if (type == INPUT || type == OUTPUT ) {
 		if (s == OUTPUT) {
@@ -61,6 +62,7 @@ void IOV::setType(string s)
 			ss << sType_out << s_us << " [" << (iBitWidth - 1) << ":0] " << name << ";";
 			lineOutput = ss.str();// +std::endl;
 			ss.clear();
+			ss.str("");
 		}
 		else {
 			lineOutput = sType_out  + name + s_us + ";";// +std::endl;
