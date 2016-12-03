@@ -49,6 +49,8 @@ CDFGraph::CDFGraph()
 
 	vONOP = new Vertex(0, &ONOP);
 	vINOP = new Vertex(0, &INOP);
+	vONOP->setType(&LOGICAL);
+	vINOP->setType(&LOGICAL);
 	vONOP->setString("OUTPUTS");
 	vINOP->setString("INPUTS");
 	vINOP->scheduleNode(0);
@@ -506,29 +508,26 @@ void CDFGraph::DFS(CDFGraph * g, Vertex * v)
 void CDFGraph::ALAP(CDFGraph * g, Vertex * v, int time)
 {
 	Vertex* nxt;
-	//int nxtTime = time - 1;
+
 	if (time < -1) {
 		std::cout << "Latency constraint insufficient to schedule all operations." << std::endl;
 		exit(1);
 	}
-	
+	int delay = v->getType()->delay;
+
 	std::vector<Edge*> eVec = v->getIncoming();
-	//v->visit();
 
 	for (std::vector<Edge*>::iterator it = eVec.begin(); it != eVec.end(); ++it) {
 		
 		nxt = (*it)->getInput();
-		//if(nxt != NULL){
+
 			if (nxt != NULL) {
-				/*if (nxt->checkVisited() == false) {
-					nxt->setALAPTime(latency);
-					nxt->visit();
-				}*/
+
 				if (nxt->getALAPTime() > time) {
 					nxt->setALAPTime(time);
-					ALAP(g, nxt, time - 1);
+					ALAP(g, nxt, time - delay);
 				}
-			//}
+
 		}
 	}
 
@@ -718,9 +717,9 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	std::stringstream ss;
 	
 	std::sort(Vertices.begin(), Vertices.end(), sortbySchedule);
-	//for (std::vector<Vertex*>::iterator it = Vertices.begin(); it != Vertices.end(); ++it) {
-	//	std::cout << left << "Node: [" << (*it)->getString() << "]\t\t" << right << "ALAP Time:" << (*it)->getALAPTime() << "\tScheduled Time: " << (*it)->query_Schedule() << std::endl;
-	//}
+	for (std::vector<Vertex*>::iterator it = Vertices.begin(); it != Vertices.end(); ++it) {
+		std::cout << left << "Node: [" << (*it)->getString() << "]\t\t" << right << "ALAP Time:" << (*it)->getALAPTime() << "\tScheduled Time: " << (*it)->query_Schedule() << std::endl;
+	}
 
 	std::ofstream outFile(outFileStr, std::ofstream::out);
 
