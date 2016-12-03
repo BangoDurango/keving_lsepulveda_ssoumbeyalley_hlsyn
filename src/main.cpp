@@ -9,6 +9,7 @@
 #include "Parser.h"
 
 
+//THIS MAIN FUNCTION IS FOR ECE3... THIS IS ECE3 FRIENDLY...
 
 int main (int argc, char* argv[]){
 	
@@ -46,7 +47,8 @@ int main (int argc, char* argv[]){
 
 	return 0;
 }
-//
+
+//THIS MAIN FUNCTION IS FOR FIGURING OUT WTF IS GOING ON WITHOUT HAVING TO MESS WITH THE COMMANDLINE.
 //
 //int main(int argc, char* argv[]) {
 //
@@ -128,3 +130,4 @@ int main (int argc, char* argv[]){
 //	//std::cout << "......................................" << std::endl << std::endl;
 //	return 0;
 //}
+
