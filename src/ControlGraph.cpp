@@ -72,6 +72,8 @@ std::vector<State*> ControlGraph::callGS() {
 	State::resetStateCount();
 
 	if (StartBlock != NULL) {
+
+		//for(std::vector<Block*>::iterator bIt = )
 		allStates = generateStates(StartBlock);
 	}
 	else if (StartConditional != NULL) {
@@ -79,25 +81,53 @@ std::vector<State*> ControlGraph::callGS() {
 	}
 
 	objStates = allStates;
-	ControlGraph::Bandaid_No1();
+	ControlGraph::setup_part1();
+	ControlGraph::MergeStates();
+	//ControlGraph::Bandaid_No3();
+	
+
 	return objStates;
 }
-void  ControlGraph::Bandaid_No1() {
-	std::string s;
-	//I AM WRITING THIS PROGRAM ALONE AND I HAVE SPENT WAY TOO MUCH TIME ON IT SO I DON'T CARE IF THIS IS A GOOD SOLUTION. I JUST WANT TO GRADUATE AND NEVER DO A GROUP PROJECT AGAIN UNLESS I'M GETTING PAID.
-	for (std::vector<State*>::iterator sIt = objStates.begin(); sIt != objStates.end();) {
-		s = (*sIt)->getNodes().front()->getString();
-		if ((sIt + 1) != objStates.end() && (sIt + 2) == objStates.end()) {
-			(*sIt)->clearNext();
+void  ControlGraph::Bandaid_No3() {
+	State *tPTR, *fPTR;
+
+	for (std::vector<State*>::iterator sIt = objStates.begin(); sIt != objStates.end(); sIt++) {
+		if ((*sIt)->getNextIfTrue() != NULL) {
+			tPTR = (*sIt)->getNextIfTrue();
 		}
-		if (s == "INPUTS" || s == "OUTPUTS") {//gets rid of the ones in the middle I DON'T CARE SHUTUP
-			
-			sIt = objStates.erase(sIt);
+		if ((*sIt)->getNextIfFalse() != NULL) {
+			fPTR = (*sIt)->getNextIfFalse();
 		}
-		else {
-			sIt++;
+		if (tPTR->getNodes().size() == 0) {
+
 		}
+		
 	}
+}
+
+
+void  ControlGraph::setup_part1() {
+	std::string s;
+	State* currS;
+	//State* newS = new State(objStates.size() + 1, "wait1");
+	if (objStates.front()->getNodes().size() == 0) {
+		objStates.front()->setName("wait1");
+		Vertex* newV = new Vertex();
+		newV->setString("if ( start == 1 )");
+		currS = objStates.front();
+		currS->setNextIfFalse(currS);
+		currS->addVertex(newV);
+	}
+
+
+	for (std::vector<State*>::iterator sIt = objStates.begin(); sIt != objStates.end();sIt++) {
+
+		if ((*sIt)->getNextIfTrue() == NULL) {
+			(*sIt)->setNextIfTrue(currS);
+		}
+	
+	}
+	objStates.push_back(currS);
 
 }
 std::vector<State*> ControlGraph::generateStates(Block* b) {
@@ -111,26 +141,36 @@ std::vector<State*> ControlGraph::generateStates(Block* b) {
 	State* currS;
 
 	allStates = b->getStates();
-	currS = allStates.back();
 
-	if (b->getNextConditional() != NULL) {
-		tmpStates = generateStates(b->getNextConditional());
-		currS->setNextIfTrue(tmpStates.front());
-		allStates.insert(allStates.end(), tmpStates.begin(), tmpStates.end());
-		return allStates;
+	if (allStates.size() != 0) {
+		currS = allStates.back();
+
+		if (b->getNextConditional() != NULL) {
+			tmpStates = generateStates(b->getNextConditional());
+			if (tmpStates.size() == 0) {
+				return allStates;
+			}
+			currS->setNextIfTrue(tmpStates.front());
+			allStates.insert(allStates.end(), tmpStates.begin(), tmpStates.end());
+			return allStates;
 		}
-	else if (b->getNextBlock() != NULL) {
-		tmpStates = generateStates(b->getNextBlock());
-		currS->setNextIfTrue(tmpStates.front());
-		allStates.insert(allStates.end(), tmpStates.begin(), tmpStates.end());
-		return allStates;
+		else if (b->getNextBlock() != NULL) {
+			tmpStates = generateStates(b->getNextBlock());
+			if (tmpStates.size() == 0) {
+				return allStates;
+			}
+			currS->setNextIfTrue(tmpStates.front());
+			allStates.insert(allStates.end(), tmpStates.begin(), tmpStates.end());
+			return allStates;
+		}
+		else {
+			return allStates;
+		}
+
 	}
 	else {
-		return allStates;
+		return std::vector<State*>();
 	}
-
-
-
 }
 
 std::vector<State*> ControlGraph::generateStates(Conditional* c) {
@@ -147,11 +187,17 @@ std::vector<State*> ControlGraph::generateStates(Conditional* c) {
 
 	if (c->getNextBlk_True() != NULL) {
 		tmpStatesTRUE = generateStates(c->getNextBlk_True());
+		if (tmpStatesTRUE.size() == 0) {
+			return allStates;
+		}
 		allStates.insert(allStates.end(), tmpStatesTRUE.begin(), tmpStatesTRUE.end());
 		currS->setNextIfTrue(tmpStatesTRUE.front());
 	}
 	else if (c->getNextCondition_True() != NULL) {
 		tmpStatesTRUE = generateStates(c->getNextCondition_True());
+		if (tmpStatesTRUE.size() == 0) {
+			return allStates;
+		}
 		allStates.insert(allStates.end(), tmpStatesTRUE.begin(), tmpStatesTRUE.end());
 		currS->setNextIfTrue(tmpStatesTRUE.front());
 	}
@@ -163,6 +209,9 @@ std::vector<State*> ControlGraph::generateStates(Conditional* c) {
 		}
 		else {
 			tmpStatesFALSE = generateStates(c->getNextBlk_False());
+			if (tmpStatesFALSE.size() == 0) {
+				return allStates;
+			}
 			allStates.insert(allStates.end(), tmpStatesFALSE.begin(), tmpStatesFALSE.end());
 			currS->setNextIfFalse(tmpStatesFALSE.front());
 		}
@@ -173,6 +222,9 @@ std::vector<State*> ControlGraph::generateStates(Conditional* c) {
 		}
 		else {
 			tmpStatesFALSE = generateStates(c->getNextCondition_False());
+			if (tmpStatesFALSE.size() == 0) {
+				return allStates;
+			}
 			allStates.insert(allStates.end(), tmpStatesFALSE.begin(), tmpStatesFALSE.end());
 			currS->setNextIfFalse(tmpStatesFALSE.front());
 		}
@@ -181,28 +233,63 @@ std::vector<State*> ControlGraph::generateStates(Conditional* c) {
 	return allStates;
 
 }
-/*for (std::vector<Conditional*>::iterator currC = conditionals.begin(); currC != conditionals.end(); ++currC) {
 
-		newS = (*currC)->getConditionalState();
-		time = newS->getTime();
-		//////////CONDITIONS
-		if ((*currC)->getNextCondition_True() != NULL) {
-			
+void  ControlGraph::MergeStates() {
+	State *sCurr, *sNext;
+	sCurr = objStates.front();
 
-		}
-		if ((*currC)->getNextCondition_False() != NULL) {
 
+	std::vector<State*> newVec;
+	State* newS;
+
+	for (std::vector<State*>::iterator sIt = objStates.begin() + 1; sIt != objStates.end(); sIt++) {//this one combines conditionals in to their preceding states.
+		sCurr = *sIt;
+		if (sCurr->getNextIfTrue() != NULL) {//can only happen through the true branch.
+			sNext = sCurr->getNextIfTrue();
+			if (sCurr->getTime() == sNext->getTime()) {//can only happen if one of them is already pointing to the next.
+				if (sNext->getName().at(0) == 'C') {//only if the second node is a conditional.
+					State::combineStates(sCurr, sNext);
+				}
+			}
 		}
-		/////////////BLOCKS
-		if ((*currC)->getNextBlk_True() != NULL) {
-		
+	}
+	//for (std::vector<State*>::iterator sIt = objStates.begin() + 1; sIt != objStates.end(); sIt++) {
+	//	sCurr = *sIt;
+	//	if (sCurr->getNextIfTrue() != NULL) {//can only happen through the true branch.
+	//		sNext = sCurr->getNextIfTrue();
+	//		if (sNext->getNodes().size() == 0) {//can only happen if one of them is already pointing to the next.
+	//			
+	//				State::combineStates(sCurr, sNext);
+	//			
+
+	//		}
+	//	}
+	//}
+
+
+	for (std::vector<State*>::iterator sIt = objStates.begin() + 1; sIt != objStates.end(); sIt++) {
+		if ((*sIt)->getNextIfTrue() != NULL) {
+			if ((*sIt)->getNextIfTrue()->query_is_marked_for_erase()) {
+				sCurr = (*sIt)->getNextIfTrue()->getNextIfFalse();
+				(*sIt)->setNextIfTrue(sCurr);
+			}
 		}
+		if ((*sIt)->getNextIfFalse() != NULL) {
+			if ((*sIt)->getNextIfFalse()->query_is_marked_for_erase()) {
+				sCurr = (*sIt)->getNextIfFalse()->getNextIfFalse();
+				(*sIt)->setNextIfFalse(sCurr);
+			}
+		}
+	}
+
+	for (std::vector<State*>::iterator sIt = objStates.begin() + 1; sIt != objStates.end(); ) {
+		if ((*sIt)->query_is_marked_for_erase()) {
+			sIt = objStates.erase(sIt);
+		}
+		else {
+			++sIt;
+		}
+	}
 	
-		
-		if ((*currC)->getNextBlk_False() != NULL) {
-			
 
-		}
-
-
-		}*/
+}

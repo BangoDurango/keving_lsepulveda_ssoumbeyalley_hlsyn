@@ -161,12 +161,15 @@ void CDFGraph::parseOperations()
 		}
 		else if (std::size_t found = it->find("}") != std::string::npos) {
 			if (opsFound) {
-				newBlk = new Block();
-				currBlk->setNext(newBlk);
-				newBlk->setPrev(currBlk);
-				lastBlock = currBlk;
-				currBlk = newBlk;
-				gControlGraph.addBlock(currBlk);
+				
+					newBlk = new Block();
+					currBlk->setNext(newBlk);
+					newBlk->setPrev(currBlk);
+					lastBlock = currBlk;
+					currBlk = newBlk;
+					gControlGraph.addBlock(currBlk);
+				
+				
 				if (tempF != NULL) {
 					tempF->setNext(newBlk);
 					tempF = NULL;
@@ -183,12 +186,14 @@ void CDFGraph::parseOperations()
 		}
 		else {
 			if (_last == CONDITIONAL) {
-				currBlk = new Block();
-				currBlk->setPrev(currC);
-				currBlk->setToIf();
-				currC->setNextIfTrue(currBlk);
-				gControlGraph.addBlock(currBlk);
-				_last = FUNCTION;
+				
+					currBlk = new Block();
+					currBlk->setPrev(currC);
+					currBlk->setToIf();
+					currC->setNextIfTrue(currBlk);
+					gControlGraph.addBlock(currBlk);
+					_last = FUNCTION;
+				
 			}
 			parseOperation(*it);
 			opsFound = true;
@@ -790,7 +795,7 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	string debugLine;
 	std::vector<State*> allStates;
 	allStates = gControlGraph.callGS();
-	std::sort(allStates.begin(), allStates.end(), stateSorter);
+	//std::sort(allStates.begin(), allStates.end(), stateSorter);
 
 	int stateRegWidth = calculateStates(allStates.size());
 
@@ -805,31 +810,30 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	int currI;
 	bool flag = true;
 
-	//std::vector<Vertex*> tmpV;
-	//Block* currB;
-	//currB = StartBlock;
-
 
 	stringstream params;
 	std::string tabs = "\t\t\t\t\t";
 
-	params << "parameter wait1 = 0,";// << statestring;
+	params << "parameter ";// << statestring;
 	int count = 1;
 
-	//allStates.front()->setName("wait1");
-	//allStates.front()->
+	std::vector<State*>::iterator test;
 	//allStates.erase(allStates.begin());
-
 	
+	allStates.pop_back();//to prevent generating a second "wait1" state. 
 	for (std::vector<State*>::iterator it = allStates.begin(); it != allStates.end(); ++it) {
-		params << (*it)->getName();
-		if ((it) != allStates.end() && (it + 1) == allStates.end()) {
-			params << " = " << count  << "	;\n";
-		}
-		else {
-			params <<" = " << count << ", ";
-		}
-		count++;
+		
+			if ((it) != allStates.end() && (it + 1) == allStates.end()) {
+		
+				params << (*it)->getName() <<  " = " << count << ";\n";
+				count++;
+			}
+			else {
+			//	
+				params << (*it)->getName() << " = " << count << ", ";
+				count++;
+				
+			}
 	}
 	outFile << params.str();
 	params.str("");
@@ -841,21 +845,40 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	//outFile << "\t\telse" << std::endl;
 	outFile << "\tcase (state)" << std::endl;
 
-	outFile << "\t\twait1: begin\t\t\n\t\t\tif( start == 1 )\n\t\t\t\tnextstate <= " << allStates.front()->getName() << ";\n";
-	outFile << "\t\t\telse\n\t\t\t\tnextstate <= wait1;\n\t\tend\n";
+	//outFile << "\t\t\twait1: begin\t\t\n\t\t\t\tif( start == 1 )\n\t\t\t\t\tnextstate <= " << allStates.front()->getName() << ";\n";
+	//outFile << "\t\t\t\telse\n\t\t\t\t\tnextstate <= wait1;\n\t\t\tend\n";
 	std::vector<string> vStrings;
-	State* newS = new State(allStates.size() + 1, "wait1");
-	allStates.back()->setNextIfTrue(newS);
+	//State* newS = new State(allStates.size() + 1, "wait1");
+	//allStates.back()->setNextIfTrue(newS);
+	std::vector<State*>::iterator it1;// , it2;
 
-	for (std::vector<State*>::iterator it = allStates.begin(); it != allStates.end(); ++it) {
+	it1 = allStates.begin();
+	//it2 = it1 + 1;
 
-		//std::cout << "\t" << (*it)->getName() << std::endl;  
-		vStrings = (*it)->getVerilog();
+
+	do {
+		
+		vStrings = (*it1)->getVerilog();
+
 		for (std::vector<string>::iterator it = vStrings.begin(); it != vStrings.end(); ++it) {
-			std::cout << *it;
-			outFile <<  *it;
+			std::cout << *it << std::endl;
+			outFile << *it;
 		}
-	}
+		it1++;
+
+	} while (it1 < allStates.end());
+	
+	//for (std::vector<State*>::iterator it = allStates.begin(); it != allStates.end(); ++it) {
+
+	//	if ((*it)->printed == false) {
+	//		vStrings = (*it)->getVerilog();
+	//		for (std::vector<string>::iterator it = vStrings.begin(); it != vStrings.end(); ++it) {
+	//			//	std::cout << *it;
+	//			outFile << *it;
+	//		}
+	//		(*it)->printed = true;
+	//	}
+	//}
 
 
 	//ugh << "\t\t\t\t" << 1 << ": begin";
