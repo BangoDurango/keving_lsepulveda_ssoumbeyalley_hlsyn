@@ -83,27 +83,12 @@ std::vector<State*> ControlGraph::callGS() {
 	objStates = allStates;
 	ControlGraph::setup_part1();
 	ControlGraph::MergeStates();
-	//ControlGraph::Bandaid_No3();
+
 	
 
 	return objStates;
 }
-void  ControlGraph::Bandaid_No3() {
-	State *tPTR, *fPTR;
 
-	for (std::vector<State*>::iterator sIt = objStates.begin(); sIt != objStates.end(); sIt++) {
-		if ((*sIt)->getNextIfTrue() != NULL) {
-			tPTR = (*sIt)->getNextIfTrue();
-		}
-		if ((*sIt)->getNextIfFalse() != NULL) {
-			fPTR = (*sIt)->getNextIfFalse();
-		}
-		if (tPTR->getNodes().size() == 0) {
-
-		}
-		
-	}
-}
 
 
 void  ControlGraph::setup_part1() {
@@ -131,10 +116,10 @@ void  ControlGraph::setup_part1() {
 
 }
 std::vector<State*> ControlGraph::generateStates(Block* b) {
-	State* newS;
-	Block* currB;
+	//State* newS;
+//	Block* currB;
 	std::vector<Vertex*> tmpNodes;
-	int time;
+	//int time;
 	std::vector<State*>allStates;
 	std::vector<State*>tmpStates;
 
@@ -174,10 +159,10 @@ std::vector<State*> ControlGraph::generateStates(Block* b) {
 }
 
 std::vector<State*> ControlGraph::generateStates(Conditional* c) {
-	State* newS;
-	Block* currB;
+	//State* newS;
+//	Block* currB;
 	std::vector<Vertex*> tmpNodes;
-	int time;
+	//int time;
 	std::vector<State*>allStates;
 	std::vector<State*>tmpStatesTRUE;
 	std::vector<State*>tmpStatesFALSE;
@@ -239,8 +224,8 @@ void  ControlGraph::MergeStates() {
 	sCurr = objStates.front();
 
 
-	std::vector<State*> newVec;
-	State* newS;
+	//std::vector<State*> newVec;
+	//State* newS;
 
 	for (std::vector<State*>::iterator sIt = objStates.begin() + 1; sIt != objStates.end(); sIt++) {//this one combines conditionals in to their preceding states.
 		sCurr = *sIt;
@@ -253,18 +238,6 @@ void  ControlGraph::MergeStates() {
 			}
 		}
 	}
-	//for (std::vector<State*>::iterator sIt = objStates.begin() + 1; sIt != objStates.end(); sIt++) {
-	//	sCurr = *sIt;
-	//	if (sCurr->getNextIfTrue() != NULL) {//can only happen through the true branch.
-	//		sNext = sCurr->getNextIfTrue();
-	//		if (sNext->getNodes().size() == 0) {//can only happen if one of them is already pointing to the next.
-	//			
-	//				State::combineStates(sCurr, sNext);
-	//			
-
-	//		}
-	//	}
-	//}
 
 
 	for (std::vector<State*>::iterator sIt = objStates.begin() + 1; sIt != objStates.end(); sIt++) {

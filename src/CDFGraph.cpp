@@ -49,6 +49,8 @@ CDFGraph::CDFGraph()
 
 	vONOP = new Vertex(0, &ONOP);
 	vINOP = new Vertex(0, &INOP);
+	vONOP->setType(&LOGICAL);
+	vINOP->setType(&LOGICAL);
 	vONOP->setString("OUTPUTS");
 	vINOP->setString("INPUTS");
 	vINOP->scheduleNode(0);
@@ -119,7 +121,7 @@ void CDFGraph::parseOperations()
 	Conditional* newC;
 	Block* newBlk;
 	Block* tempF = NULL;
-	Block* lastBlock;
+	//Block* lastBlock;
 	bool opsFound = false;
 
 	if (this->FileStrings.size() == 0) {
@@ -127,9 +129,10 @@ void CDFGraph::parseOperations()
 		exit(1);
 	}
 	bool first = true;
+	//std::size_t found;
 	for (std::vector<string>::iterator it = FileStrings.begin(); it != FileStrings.end(); ++it) {
 		
-		if (std::size_t found = it->find(IF) != std::string::npos) {
+		if (it->find(IF) != std::string::npos) {
 			newC = new Conditional(*it);
 			tempV = parseConditional(*it);
 			Vertices.push_back(tempV);
@@ -154,18 +157,18 @@ void CDFGraph::parseOperations()
 			
 			_last = CONDITIONAL;
 		}
-		else if (std::size_t found = it->find(ELSE) != std::string::npos) {
+		else if (it->find(ELSE) != std::string::npos) {
 		
 			tempF = currBlk->convertToElse(currC);
 			//currBlk->setToElse();
 		}
-		else if (std::size_t found = it->find("}") != std::string::npos) {
+		else if (it->find("}") != std::string::npos) {
 			if (opsFound) {
 				
 					newBlk = new Block();
 					currBlk->setNext(newBlk);
 					newBlk->setPrev(currBlk);
-					lastBlock = currBlk;
+			//		lastBlock = currBlk;
 					currBlk = newBlk;
 					gControlGraph.addBlock(currBlk);
 				
@@ -227,7 +230,7 @@ void CDFGraph::addConditionalVertices() {
 		return;
 		//exit(1);
 	}
-	int cnt = 0;
+	//int cnt = 0;
 
 //	Block* currBlk;
 //	Conditional* currCnd;
@@ -239,7 +242,7 @@ void CDFGraph::addConditionalVertices() {
 	std::vector<Vertex*> vVec;
 	bVec = gControlGraph.getBlocks();
 
-	Block* tempBlock;
+	//Block* tempBlock;
 
 	for (std::vector<Conditional*>::iterator it = cndVec.begin(); it != cndVec.end(); ++it) {
 
@@ -247,10 +250,10 @@ void CDFGraph::addConditionalVertices() {
 		
 		Edges.insert(Edges.end(), eVec.begin(), eVec.end());
 		
-		cnt = 0;
+	//	cnt = 0;
 	}
 	if (cndVec.back()->getVCondition()->getOutgoing().front() == NULL) {
-		cnt = 0;
+	//	cnt = 0;
 	}
 	//for (std::vector<Block*>::iterator bIt = bVec.begin(); bIt != bVec.end(); ++bIt) {
 	//		tempBlock = (*bIt)->getNextBlock();
@@ -505,29 +508,26 @@ void CDFGraph::DFS(CDFGraph * g, Vertex * v)
 void CDFGraph::ALAP(CDFGraph * g, Vertex * v, int time)
 {
 	Vertex* nxt;
-	//int nxtTime = time - 1;
+
 	if (time < -1) {
 		std::cout << "Latency constraint insufficient to schedule all operations." << std::endl;
 		exit(1);
 	}
-	
+	int delay = v->getType()->delay;
+
 	std::vector<Edge*> eVec = v->getIncoming();
-	//v->visit();
 
 	for (std::vector<Edge*>::iterator it = eVec.begin(); it != eVec.end(); ++it) {
 		
 		nxt = (*it)->getInput();
-		//if(nxt != NULL){
+
 			if (nxt != NULL) {
-				/*if (nxt->checkVisited() == false) {
-					nxt->setALAPTime(latency);
-					nxt->visit();
-				}*/
+
 				if (nxt->getALAPTime() > time) {
 					nxt->setALAPTime(time);
-					ALAP(g, nxt, time - 1);
+					ALAP(g, nxt, time - delay);
 				}
-			//}
+
 		}
 	}
 
@@ -594,11 +594,11 @@ void CDFGraph::LIST_R(int n) {
 	//LIST_R(this, )
 	int t = 1;
 //	Vertex* minALAP;
-	int min = 999;
+//	int min = 999;
 	std::vector<Vertex*> allV = Vertices;//vector full of all of the nodes in the graph, which at this point are as yet unscheduled.
 	std::vector<Vertex*> vSchedule;//vector of nodes which have been scheduled?
 //	bool found = false;
-	bool schFlag = false;
+//	bool schFlag = false;
 
 
 
@@ -653,7 +653,7 @@ void CDFGraph::resetRCounts() {
 	}
 }
 bool CDFGraph::checkInputorVariable(std::string s) {
-	IOV* tIOV = getIOVbyName(s);
+//	IOV* tIOV = getIOVbyName(s);
 	for (std::vector<IOV>::iterator it = inputs.begin(); it != inputs.end(); ++it) {
 		if (it->getName() == s) {
 			return true;
@@ -669,7 +669,7 @@ bool CDFGraph::checkInputorVariable(std::string s) {
 }
 
 bool CDFGraph::checkOutputorVariable(std::string s) {
-	IOV* tIOV = getIOVbyName(s);
+//	IOV* tIOV = getIOVbyName(s);
 	for (std::vector<IOV>::iterator it = inputs.begin(); it != inputs.end(); ++it) {
 		if (it->getName() == s) {
 			return true;
@@ -717,9 +717,9 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	std::stringstream ss;
 	
 	std::sort(Vertices.begin(), Vertices.end(), sortbySchedule);
-	//for (std::vector<Vertex*>::iterator it = Vertices.begin(); it != Vertices.end(); ++it) {
-	//	std::cout << left << "Node: [" << (*it)->getString() << "]\t\t" << right << "ALAP Time:" << (*it)->getALAPTime() << "\tScheduled Time: " << (*it)->query_Schedule() << std::endl;
-	//}
+	for (std::vector<Vertex*>::iterator it = Vertices.begin(); it != Vertices.end(); ++it) {
+		std::cout << left << "Node: [" << (*it)->getString() << "]\t\t" << right << "ALAP Time:" << (*it)->getALAPTime() << "\tScheduled Time: " << (*it)->query_Schedule() << std::endl;
+	}
 
 	std::ofstream outFile(outFileStr, std::ofstream::out);
 
@@ -738,8 +738,8 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	std::string nm = "";
 	std::string argStr;
 
-	bool sgn;
-	sgn = false;
+	//bool sgn;
+	//sgn = false;
 	//string debugs;
 	ss << "clk, rst, ";
 
@@ -761,7 +761,7 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	}
 
 
-	State* currS;
+	//State* currS;
 
 
 	argStr = ss.str();//argstr is the list of inputs in the function signature
@@ -806,9 +806,9 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	ugh.clear();
 	ugh.str("");
 
-	int time = 1;
-	int currI;
-	bool flag = true;
+	//int time = 1;
+//	int currI;
+	//bool flag = true;
 
 
 	stringstream params;
@@ -861,7 +861,7 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 		vStrings = (*it1)->getVerilog();
 
 		for (std::vector<string>::iterator it = vStrings.begin(); it != vStrings.end(); ++it) {
-			std::cout << *it << std::endl;
+			//std::cout << *it << std::endl;
 			outFile << *it;
 		}
 		it1++;
@@ -885,7 +885,7 @@ void CDFGraph::generateVerilogFile(char* outFileStr) {
 	//outFile << ugh.str() << std::endl;
 	ugh.clear();
 	ugh.str("");
-	currI = minTime;
+	//currI = minTime;
 	
 	//outFile << "\t\t\t\tend" << std::endl;
 	outFile << "\t\t\tendcase" << std::endl;
