@@ -14,12 +14,13 @@ public:
 	//static State* combineIfElseStates(State* s1, State* s2, Vertex* vCond);
 	std::vector<Vertex*> getNodes();
 	int getTime();
+	void addNodeVector(std::vector<Vertex*> v);
 	std::vector<string> getVerilog();
 	//void setNext(State* n);
 	std::vector<string> getStrings();
 	void setName(std::string s);
 	std::string getName();
-	static State* combineStates(State* s1, State* conditional);
+	static void combineStates(State* s1, State* conditional);
 	void setNextIfTrue(State* s);
 	void setNextIfFalse(State* s);
 	void setNextIfTrue(std::vector<State*> s);
@@ -37,7 +38,8 @@ public:
 	//bool operator!=(const State & other) const;
 	static void resetStateCount();
 	static int getStateCount();
-	
+	void markToErase();
+	bool query_is_marked_for_erase();
 private:
 	std::string sName;
 	//State* nextState;
@@ -47,5 +49,6 @@ private:
 	int time;
 	std::vector<Vertex*> nodes;
 	std::vector<std::string> slines;
+	bool trash;
 };
 #endif

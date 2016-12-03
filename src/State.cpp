@@ -3,6 +3,9 @@ int State::sCount;
 
 State::State()
 {
+	trash = false;
+	nextIfTrue = NULL;
+	nextIfFalse = NULL;
 	sCount++;
 }
 std::string tabs(int n) {
@@ -14,6 +17,10 @@ std::string tabs(int n) {
 }
 State::State(int t, std::string s)
 {
+	trash = false;
+	nextIfTrue = NULL;
+	nextIfFalse = NULL;
+
 	stringstream ss;
 	if (s == "wait1") {
 		ss << s;
@@ -43,6 +50,11 @@ int State::getTime()
 	return time;
 }
 
+void State::addNodeVector(std::vector<Vertex*> v)
+{
+	this->nodes.insert(this->nodes.end(), v.begin(), v.end());//combine their nodes
+}
+
 std::vector<string> State::getVerilog()
 {
 	std::vector<string> vLines;
@@ -65,27 +77,27 @@ std::vector<string> State::getVerilog()
 		}
 		
 	}
-	if (sName.at(0) == 'C') {
-		if (this->nextIfTrue != NULL) {
-			sT = tabs(6) + "nextstate <= " + this->nextIfTrue->sName + ";\n";
-			vLines.push_back(sT);
-		}
-		if (this->nextIfFalse != NULL) {
-			stemp = this->nextIfFalse->getName();
-			if (stemp.at(0) == 'E') {
-				vLines.push_back(tabs(5) + "else\n");
-				sF = tabs(6) + "nextstate <= " + this->nextIfFalse->sName + ";\n";
-				vLines.push_back(sF);
-			}
+	//if (sName.at(0) == 'C') {
+	if (this->nextIfTrue != NULL) {
+		sT = tabs(6) + "nextstate <= " + this->nextIfTrue->sName + ";\n";
+		vLines.push_back(sT);
+	}
+	if (this->nextIfFalse != NULL) {
+		stemp = this->nextIfFalse->getName();
+		//if (stemp.at(0) == 'E') {
+		vLines.push_back(tabs(5) + "else\n");
+		sF = tabs(6) + "nextstate <= " + this->nextIfFalse->sName + ";\n";
+		vLines.push_back(sF);
+		//}
 
-		}
 	}
-	else {
-		if (this->nextIfTrue != NULL) {
-			s = tabs(5) + "nextstate <= " + this->nextIfTrue->sName + ";\n";
-			vLines.push_back(s);
-		}
-	}
+	//}
+	//else {
+	//	if (this->nextIfTrue != NULL) {
+	//		s = tabs(5) + "nextstate <= " + this->nextIfTrue->sName + ";\n";
+	//		vLines.push_back(s);
+	//	}
+	//}
 	s = tabs(4) + "end\n\n";
 	vLines.push_back(s);
 
@@ -128,22 +140,26 @@ void State::setNextIfFalse(std::vector<State*> s){
 	nextIfFalse = s.front();
 }
 
-State* State::combineStates(State* s1, State* conditional){
+void State::combineStates(State* s1, State* s2){
+
 	State* newS = NULL;
-	if (s1->getTime() == conditional->getTime()){
-		newS = new State(conditional->getTime(), "S_");
-		std::vector<Vertex*> vVec = s1->getNodes();
-		
-		for (std::vector<Vertex*>::iterator vIt = vVec.begin(); vIt != vVec.end(); ++vIt) {
-			newS->addVertex(*vIt);
-			//newS->addLine((*vIt)->getString());
+	State *sT, *sF;
+	if (s1->getNextIfTrue() == s2) {
+		s1->addNodeVector(s2->getNodes());//move the nodes over
+
+		if (s2->getNextIfTrue() != NULL) {//move the pointers over
+			sT = s2->getNextIfTrue();
+			s1->setNextIfTrue(sT);
 		}
-		newS->addVertex(conditional->getNodes().front());
-		newS->addLine(conditional->getNodes().front()->getString());
-		//newS->setNextIfTrue(conditional->getNextIfTrue());
-		//newS->setNextIfFalse(conditional->getNextIfFalse());
+		if (s2->getNextIfFalse() != NULL) {
+			sF = s2->getNextIfFalse();
+			s1->setNextIfFalse(sF);
+		}
+		//s2->setNextIfTrue(s1);
+		s2->setNextIfFalse(s1);
+		s2->markToErase();
+
 	}
-	return newS;
 }
 State* State::getNextIfTrue(){
 	return nextIfTrue;
@@ -157,6 +173,7 @@ void State::clearNext() {
 State* State::getNextIfFalse(){
 	return nextIfFalse;
 }
+
 std::vector<std::string> State::getLines(){
 	string s;
 	for (std::vector<Vertex*>::iterator vIt = nodes.begin(); vIt != nodes.end(); ++vIt) {
@@ -189,3 +206,14 @@ int State::getStateCount()
 {
 	return sCount;
 }
+
+void State::markToErase()
+{
+	trash = true;
+}
+
+bool State::query_is_marked_for_erase()
+{
+	return trash;
+}
+

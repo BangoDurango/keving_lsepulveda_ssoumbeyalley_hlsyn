@@ -23,9 +23,12 @@ public:
 	Conditional* getStartConditional();
 	Block* getStartBlock();
 	std::vector<State*> callGS();
-	void Bandaid_No1();
+	void Bandaid_No3();
+	
+	void setup_part1();
 	std::vector<State*> generateStates(Block* b);
 	std::vector<State*> generateStates(Conditional* c);
+	void MergeStates();
 private:
 	std::vector<Block*> blocks;
 	std::vector<Conditional*> conditionals;

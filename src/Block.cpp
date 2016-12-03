@@ -28,7 +28,7 @@ void Block::addEdge(Edge * e)
 void Block::setPrev(Conditional * c)
 {
 	if (blkPrev != NULL) {
-		std::cout << "warning: Block already has both function and condition assigned to next." << std::endl;
+		//std::cout << "warning: Block already has both function and condition assigned to next." << std::endl;
 	}
 	cPrev = c;
 }
@@ -181,32 +181,59 @@ std::vector<State*> Block::getStates() {
 	states.push_back(currS);
 	State* cState;
 	
+	if (this->nodes.front()->getString() == "OUTPUTS") {
+		//std::cout << "pause";
+		return std::vector<State*>();
+	}
 	for (std::vector<Vertex*>::iterator currV = nodes.begin(); currV != nodes.end(); ++currV) {
 		/*if ((*currV)->getString() == "INPUTS" || (*currV)->getString() == "OUTPUTS") {
 			continue;
 		}*/
 		sTime = (*currV)->query_Schedule();
+		
+		if ((*currV)->getString() != "INPUTS" && (*currV)->getString() != "OUTPUTS" ) {
+			
+			if (sTime == currS->getTime()) {
 
-		if (sTime == currS->getTime()) {
+				currS->addVertex(*currV);
 
-			currS->addVertex(*currV);
+			}
+			else {
 
+				sTime = (*currV)->query_Schedule();
+				ss << sName << State::getStateCount() << "_";
+				nextS = new State(sTime, ss.str());
+				ss.clear();
+				ss.str("");
+				nextS->addVertex(*currV);
+				currS->setNextIfTrue(nextS);
+				currS = nextS;
+				states.push_back(currS);
+
+			}
+		}
+
+	}
+	/*std::vector<State*>::iterator iPrev = states.begin();
+	bool first = true;
+	for (std::vector<State*>::iterator sIt = states.begin(); sIt != states.end();) {
+
+		if ((*sIt)->getNodes().size() == 0) {
+			if (!first) {
+				(*iPrev)->clearNext();
+				sIt = states.erase(sIt);
+				(*iPrev)->setNextIfTrue(*sIt);
+			}
+			else {
+				sIt = states.erase(sIt);
+			}
 		}
 		else {
-
-			sTime = (*currV)->query_Schedule();
-			ss << sName << State::getStateCount() << "_";
-			nextS = new State(sTime,ss.str());
-			ss.clear();
-			ss.str("");
-			nextS->addVertex(*currV);
-			currS->setNextIfTrue(nextS);
-			currS = nextS;
-			states.push_back(currS);
-
+			first = false;
+			iPrev = sIt;
+			++sIt;
 		}
-	}
-
+	}*/
 
 	//std::sort(states)
 	std::vector<Vertex*> tmpN;
