@@ -94,17 +94,17 @@ std::vector<State*> ControlGraph::callGS() {
 void  ControlGraph::setup_part1() {
 	std::string s;
 	State* currS;
-	//State* newS = new State(objStates.size() + 1, "wait1");
+	//State* newS = new State(objStates.size() + 1, "Wait");
 	if (objStates.front()->getNodes().size() == 0) {
-		objStates.front()->setName("wait1");
+		objStates.front()->setName("Wait");
 		Vertex* newV = new Vertex();
-		newV->setString("if ( start == 1 )");
+		newV->setString("if ( Start == 1 )");
 		currS = objStates.front();
 		currS->setNextIfFalse(currS);
 		currS->addVertex(newV);
 	}
 
-
+	objStates.back()->setName("Final");
 	for (std::vector<State*>::iterator sIt = objStates.begin(); sIt != objStates.end();sIt++) {
 
 		if ((*sIt)->getNextIfTrue() == NULL) {
