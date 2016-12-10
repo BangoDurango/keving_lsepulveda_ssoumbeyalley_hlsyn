@@ -55,12 +55,12 @@ int main (int argc, char* argv[]){
 //	//string path = "E:\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\testfiles";
 //	//string path = "E:\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\testfiles\\standard tests\\";
 //	string path = "E:\\Kevin\\Documents\\GitHub\\keving_lsepulveda_ssoumbeyalley_hlsyn\\testfiles\\";
-//	string inFileString = "\\if tests\\test_if3.c";
+//	string inFileString = "\\if_tests\\test_if4.c";
 //	char* inCStr = new char[(path + inFileString).length() - 1];
 //	strcpy(inCStr, (path + inFileString).c_str());
 //
 //
-//	std::string outFileString = "\\output\\out1.v";
+//	std::string outFileString = "\\output\\out3.v";
 //
 //	char* outCStr = new char[(path + outFileString).length() - 1];
 //	strcpy(outCStr, (path + outFileString).c_str());
@@ -130,4 +130,4 @@ int main (int argc, char* argv[]){
 //	//std::cout << "......................................" << std::endl << std::endl;
 //	return 0;
 //}
-
+//
